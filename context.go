@@ -4,7 +4,6 @@
 package zapcloudlogging
 
 import (
-	"runtime"
 	"strconv"
 
 	"go.uber.org/zap"
@@ -50,7 +49,7 @@ func newReportContext(pc uintptr, file string, line int, ok bool) *reportContext
 	}
 
 	var function string
-	if fn := runtime.FuncForPC(pc); fn != nil {
+	if fn := FuncForPC(pc); fn != nil {
 		function = fn.Name()
 	}
 	ctx := &reportContext{
