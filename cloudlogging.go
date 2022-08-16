@@ -1,13 +1,16 @@
 // Copyright 2022 The zap-cloudlogging Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
+// Package zapcloudlogging provides the Cloud Logging intergration for Zap.
 package zapcloudlogging
 
 import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"time"
+	"unicode"
 
 	json "github.com/goccy/go-json"
 	"go.uber.org/zap"
@@ -49,8 +52,12 @@ func encoderConfig() zapcore.EncoderConfig {
 	}
 }
 
+func toCamelCase(s string) string {
+	return string(unicode.ToUpper(rune(s[0]))) + strings.ToLower(s[1:])
+}
+
 func encodeLevel(lvl zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString(levelToSeverity[lvl].Enum().String())
+	enc.AppendString(toCamelCase(levelToSeverity[lvl].Enum().String()))
 }
 
 // rfc3339NanoTimeEncoder serializes a time.Time to an RFC3339Nano-formatted
