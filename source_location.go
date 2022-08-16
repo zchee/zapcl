@@ -4,10 +4,9 @@
 package zapcloudlogging
 
 import (
-	"strconv"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	logpb "google.golang.org/genproto/googleapis/logging/v2"
 )
 
 const (
@@ -15,31 +14,14 @@ const (
 )
 
 type sourceLocation struct {
-	// File is the source file name. Depending on the runtime environment, this might be a simple name or a fully-qualified name.
-	//
-	// Optional.
-	File string `json:"file"`
-
-	// Line within the source file. 1-based; 0 indicates no line number available.
-	//
-	// Optional.
-	Line string `json:"line"` // int64 format
-
-	// Function is the Human-readable name of the function or method being invoked, with optional context such as the class or package name.
-	//
-	// This information may be used in contexts such as the logs viewer, where a file and line number are less meaningful.
-	// The format can vary by language.
-	// For example: dir/package.func.
-	//
-	// Optional.
-	Function string `json:"function"`
+	*logpb.LogEntrySourceLocation
 }
 
 // MarshalLogObject implements zapcore.ObjectMarshaller.MarshalLogObject.
 func (l sourceLocation) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddString("file", l.File)
-	enc.AddString("line", l.Line)
-	enc.AddString("function", l.Function)
+	enc.AddString("file", l.GetFile())
+	enc.AddInt64("line", l.GetLine())
+	enc.AddString("function", l.GetFunction())
 
 	return nil
 }
@@ -55,9 +37,11 @@ func newSource(pc uintptr, file string, line int, ok bool) *sourceLocation {
 	}
 
 	loc := &sourceLocation{
-		File:     file,
-		Line:     strconv.Itoa(line),
-		Function: function,
+		LogEntrySourceLocation: &logpb.LogEntrySourceLocation{
+			File:     file,
+			Line:     int64(line),
+			Function: function,
+		},
 	}
 
 	return loc
