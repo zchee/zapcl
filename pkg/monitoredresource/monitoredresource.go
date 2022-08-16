@@ -1481,6 +1481,7 @@ func (r *resource) metadataZone() string {
 	if zone != "" {
 		return zone[strings.LastIndex(zone, "/")+1:]
 	}
+
 	return ""
 }
 
@@ -1489,12 +1490,14 @@ func (r *resource) metadataRegion() string {
 	if region != "" {
 		return region[strings.LastIndex(region, "/")+1:]
 	}
+
 	return ""
 }
 
 // isMetadataActive queries valid response on "/computeMetadata/v1/" URL
 func (r *resource) isMetadataActive() bool {
 	data := r.attrs.Metadata("")
+
 	return data != ""
 }
 
