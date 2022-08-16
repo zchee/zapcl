@@ -8,6 +8,7 @@ require (
 	github.com/google/go-cmp v0.5.8
 	go.opentelemetry.io/otel/trace v1.9.0
 	go.uber.org/zap v1.22.0
+	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab
 	google.golang.org/genproto v0.0.0-20220804142021-4e6b2dfa6612
 )
 

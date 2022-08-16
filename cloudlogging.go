@@ -4,12 +4,14 @@
 package zapcloudlogging
 
 import (
+	"errors"
 	"io"
 	"time"
 
 	json "github.com/goccy/go-json"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"golang.org/x/sys/unix"
 	logtypepb "google.golang.org/genproto/googleapis/logging/type"
 
 	"github.com/zchee/zap-cloudlogging/pkg/monitoredresource"
@@ -146,7 +148,39 @@ func (c *core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 //
 // Sync implemenns zapcore.Core.Sync.
 func (c *core) Sync() error {
-	return c.ws.Sync()
+	if err := c.ws.Sync(); err != nil {
+		if knownSyncError(err) {
+			return nil
+		}
+		return fmt.Errorf("faild to sync logger: %w", err)
+	}
+
+	return nil
+}
+
+// knownSyncError reports whether the given error is one of the known
+// non-actionable errors returned by Sync on Linux and macOS.
+//
+// Linux:
+// - sync /dev/stdout: invalid argument
+//
+// macOS:
+// - sync /dev/stdout: inappropriate ioctl for device
+//
+// This code was borrowed from:
+//
+//	https://github.com/open-telemetry/opentelemetry-collector/blob/v0.46.0/exporter/loggingexporter/known_sync_error.go#L24-L39.
+func knownSyncError(err error) bool {
+	switch {
+	case errors.Is(err, unix.EINVAL),
+		errors.Is(err, unix.ENOTSUP),
+		errors.Is(err, unix.ENOTTY),
+		errors.Is(err, unix.EBADF):
+
+		return true
+	}
+
+	return false
 }
 
 // Option configures a core.
