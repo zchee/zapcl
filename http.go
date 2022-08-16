@@ -89,10 +89,9 @@ func (p HTTPPayload) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return nil
 }
 
-// HTTPRequestField adds the Cloud Logging "httpRequest" fields from req and resp.
-//
-//	https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#HttpRequest
-func HTTPRequestField(r *http.Request, res *http.Response) zapcore.Field {
+// NewHTTPRequest returns a new HTTPPayload struct, based on the passed
+// in http.Request and http.Response objects.
+func NewHTTPRequest(r *http.Request, res *http.Response) *HTTPPayload {
 	if r == nil {
 		r = &http.Request{}
 	}
@@ -125,5 +124,12 @@ func HTTPRequestField(r *http.Request, res *http.Response) zapcore.Field {
 		req.ResponseSize = strconv.FormatInt(n, 10)
 	}
 
+	return req
+}
+
+// HTTP adds the correct Stackdriver "httpRequest" field.
+//
+//	https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#HttpRequest
+func HTTP(req *HTTPPayload) zap.Field {
 	return zap.Object(httpRequestKey, req)
 }
