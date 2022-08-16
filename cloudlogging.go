@@ -18,15 +18,11 @@ var levelToSeverity = map[zapcore.Level]cloudlogging.Severity{
 	zapcore.FatalLevel:  cloudlogging.Emergency,
 }
 
-type logger struct{}
+type logger struct {
+	zapcore.LevelEnabler
+}
 
 var _ zapcore.Core = (*logger)(nil)
-
-// Enabled decides whether a given logging level is enabled when logging a
-// message.
-func (l *logger) Enabled(lvl zapcore.Level) bool {
-	return false
-}
 
 // With adds structured context to the Core.
 func (l *logger) With(fields []zapcore.Field) zapcore.Core {
