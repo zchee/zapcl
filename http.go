@@ -66,8 +66,10 @@ type HTTPPayload struct {
 	Protocol string `json:"protocol"`
 }
 
+var _ zapcore.ObjectMarshaler = (*HTTPPayload)(nil)
+
 // MarshalLogObject implements zapcore.ObjectMarshaler.
-func (p *HTTPPayload) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+func (p HTTPPayload) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("requestMethod", p.RequestMethod)
 	enc.AddString("requestUrl", p.RequestUrl)
 	enc.AddString("requestSize", p.RequestSize)
