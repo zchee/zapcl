@@ -17,7 +17,7 @@ import (
 func TestHTTPRequestField(t *testing.T) {
 	t.Parallel()
 
-	var tests = map[string]struct {
+	tests := map[string]struct {
 		req  *http.Request
 		res  *http.Response
 		want *HTTPPayload

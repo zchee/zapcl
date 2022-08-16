@@ -60,7 +60,8 @@ var fetcher = &resourceFetcher{
 				KeepAlive: 10 * time.Second,
 			}).Dial,
 		},
-	})}
+	}),
+}
 
 // ResourceAttributes provides read-only access to the ResourceAttributesFetcher interface implementation.
 func ResourceAttributes() ResourceAttributesFetcher {
