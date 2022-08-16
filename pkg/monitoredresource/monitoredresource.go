@@ -1537,3 +1537,25 @@ func detectCloudRunResource() *MonitoredResource {
 		},
 	}
 }
+
+func detectCloudRunJobsResource() *MonitoredResource {
+	projectID := resourceDetector.metadataProjectID()
+	if projectID == "" {
+		return nil
+	}
+
+	region := resourceDetector.metadataRegion()
+	service := resourceDetector.attrs.EnvVar(detector.EnvCloudRunJobsService)
+
+	return &MonitoredResource{
+		logID: "run.googleapis.com%2Fstdout",
+		MonitoredResource: &mrpb.MonitoredResource{
+			Type: string(CloudRunJob),
+			Labels: Label{
+				"project_id": projectID,
+				"job_name":   service,
+				"location":   region,
+			},
+		},
+	}
+}
