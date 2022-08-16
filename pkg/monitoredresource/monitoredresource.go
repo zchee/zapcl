@@ -1547,7 +1547,7 @@ func detectCloudRunJobsResource() *MonitoredResource {
 	}
 
 	region := resourceDetector.metadataRegion()
-	service := resourceDetector.attrs.EnvVar(detector.EnvCloudRunJobsService)
+	jobname := resourceDetector.attrs.EnvVar(detector.EnvCloudRunJobsService)
 
 	return &MonitoredResource{
 		logIDStdout: "run.googleapis.com%2Fstdout",
@@ -1556,7 +1556,7 @@ func detectCloudRunJobsResource() *MonitoredResource {
 			Type: string(CloudRunJob),
 			Labels: Label{
 				"project_id": projectID,
-				"job_name":   service,
+				"job_name":   jobname,
 				"location":   region,
 			},
 		},
