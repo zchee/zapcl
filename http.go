@@ -22,8 +22,8 @@ type HTTPPayload struct {
 	// RequestMethod is the request method. Examples: "GET", "HEAD", "PUT", "POST".
 	RequestMethod string `json:"requestMethod"`
 
-	// RequestUrl is the scheme (http, https), the host name, the path and the query portion of the URL that was requested. Example: "http://example.com/some/info?color=red".
-	RequestUrl string `json:"requestUrl"`
+	// RequestURL is the scheme (http, https), the host name, the path and the query portion of the URL that was requested. Example: "http://example.com/some/info?color=red".
+	RequestURL string `json:"requestUrl"`
 
 	// RequestSize is THE size of the HTTP request message in bytes, including the request headers and the request body.
 	RequestSize string `json:"requestSize"` // int64 format
@@ -71,7 +71,7 @@ var _ zapcore.ObjectMarshaler = (*HTTPPayload)(nil)
 // MarshalLogObject implements zapcore.ObjectMarshaler.
 func (p HTTPPayload) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("requestMethod", p.RequestMethod)
-	enc.AddString("requestUrl", p.RequestUrl)
+	enc.AddString("requestUrl", p.RequestURL)
 	enc.AddString("requestSize", p.RequestSize)
 	enc.AddInt("status", p.Status)
 	enc.AddString("responseSize", p.ResponseSize)
@@ -93,6 +93,13 @@ func (p HTTPPayload) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 //
 //	https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#HttpRequest
 func HTTPRequestField(r *http.Request, res *http.Response) zapcore.Field {
+	if r == nil {
+		r = &http.Request{}
+	}
+	if res == nil {
+		res = &http.Response{}
+	}
+
 	req := &HTTPPayload{
 		RequestMethod: r.Method,
 		Status:        res.StatusCode,
@@ -103,7 +110,7 @@ func HTTPRequestField(r *http.Request, res *http.Response) zapcore.Field {
 	}
 
 	if url := r.URL; url != nil {
-		req.RequestUrl = url.String()
+		req.RequestURL = url.String()
 	}
 
 	buf := new(bytes.Buffer)
