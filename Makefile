@@ -66,7 +66,7 @@ coverage: CGO_ENABLED=1
 coverage: GO_FLAGS=-tags='$(subst ${space},${comma},${GO_BUILDTAGS})'
 coverage: ${TOOLS_BIN}/gotestsum  ## Takes packages test coverage.
 	$(call target)
-	@CGO_ENABLED=${CGO_ENABLED} ${GO_TEST} ${GO_TEST_FLAGS} -covermode=atomic -coverpkg=${PKG}/... -coverprofile=${GO_COVERAGE_OUT} $(strip ${GO_FLAGS}) ${GO_PKGS}
+	@CGO_ENABLED=${CGO_ENABLED} ${GO_TEST} ${GO_TEST_FLAGS} -covermode=atomic -coverpkg=./... -coverprofile=${GO_COVERAGE_OUT} $(strip ${GO_FLAGS}) ${GO_PKGS}
 
 ##@ fmt, lint
 
