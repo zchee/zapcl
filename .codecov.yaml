@@ -1,0 +1,43 @@
+codecov:
+  allow_coverage_offsets: true
+
+parsers:
+  go:
+    partials_as_hits: true
+
+coverage:
+  precision: 1
+  range: "70...100"
+  round: down
+
+  status:
+    default_rules:
+      flag_coverage_not_uploaded_behavior: include
+
+    project:
+      default:
+        target: auto
+        threshold: 1.0
+        if_not_found: success
+
+    patch:
+      default:
+        target: 50%
+        threshold: 10.0
+        only_pulls: true
+        if_not_found: failure
+
+    changes:
+      default:
+        if_not_found: success
+        only_pulls: false
+        branches:
+          - main
+
+comment:
+  behavior: default
+  require_changes: true
+  show_carryforward_flags: true
+
+github_checks:
+  annotations: true
