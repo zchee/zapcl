@@ -6,6 +6,7 @@ package zapcloudlogging
 import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	logpb "google.golang.org/genproto/googleapis/logging/v2"
 )
 
 const (
@@ -14,37 +15,17 @@ const (
 
 // operation is the payload of Cloud Logging operation field.
 type operation struct {
-	// ID is an arbitrary operation identifier. Log entries with the same identifier are assumed to be part of the same operation.
-	//
-	// Optional.
-	ID string `json:"id"`
-
-	// Producer is an arbitrary producer identifier. The combination of id and producer must be globally unique.
-	//
-	// Examples for producer: "MyDivision.MyBigCompany.com", "github.com/MyProject/MyApplication".
-	//
-	// Optional.
-	Producer string `json:"producer"`
-
-	// First set this to True if this is the first log entry in the operation.
-	//
-	// Optional.
-	First bool `json:"first"`
-
-	// Last set this to True if this is the last log entry in the operation.
-	//
-	// Optional.
-	Last bool `json:"last"`
+	*logpb.LogEntryOperation
 }
 
 var _ zapcore.ObjectMarshaler = (*operation)(nil)
 
 // MarshalLogObject implements zapcore.ObjectMarshaller.MarshalLogObject.
 func (op operation) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddString("id", op.ID)
-	enc.AddString("producer", op.Producer)
-	enc.AddBool("first", op.First)
-	enc.AddBool("last", op.Last)
+	enc.AddString("id", op.GetId())
+	enc.AddString("producer", op.GetProducer())
+	enc.AddBool("first", op.GetFirst())
+	enc.AddBool("last", op.GetLast())
 
 	return nil
 }
@@ -54,10 +35,12 @@ func (op operation) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 //	https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#LogEntryOperation
 func Operation(id, producer string, first, last bool) zapcore.Field {
 	op := &operation{
-		ID:       id,
-		Producer: producer,
-		First:    first,
-		Last:     last,
+		LogEntryOperation: &logpb.LogEntryOperation{
+			Id:       id,
+			Producer: producer,
+			First:    first,
+			Last:     last,
+		},
 	}
 
 	return zap.Object(operationKey, op)
