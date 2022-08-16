@@ -16,8 +16,8 @@ func TestErrorReport(t *testing.T) {
 	if gotFile, wantFile := got.ReportLocation.File, "zap-cloudlogging/context_test.go"; !strings.Contains(gotFile, wantFile) {
 		t.Fatalf("except got.File contains %s but got %s", wantFile, gotFile)
 	}
-	if gotLine, wantLine := got.ReportLocation.Line, "14"; !strings.EqualFold(gotLine, wantLine) {
-		t.Fatalf("except got.Line equal %s but got %s", wantLine, gotLine)
+	if gotLine, wantLine := got.ReportLocation.Line, int64(14); gotLine != wantLine {
+		t.Fatalf("except got.Line equal %d but got %d", wantLine, gotLine)
 	}
 	if gotFunc, wantFunc := got.ReportLocation.Function, "zap-cloudlogging.TestErrorReport"; !strings.Contains(gotFunc, wantFunc) {
 		t.Fatalf("except got.Function contains %s but got %s", wantFunc, gotFunc)
@@ -32,8 +32,8 @@ func TestNewReportContext(t *testing.T) {
 	if gotFile, wantFile := got.ReportLocation.File, "zap-cloudlogging/context_test.go"; !strings.Contains(gotFile, wantFile) {
 		t.Fatalf("except got.File contains %s but got %s", wantFile, gotFile)
 	}
-	if gotLine, wantLine := got.ReportLocation.Line, "30"; !strings.EqualFold(gotLine, wantLine) {
-		t.Fatalf("except got.Line equal %s but got %s", wantLine, gotLine)
+	if gotLine, wantLine := got.ReportLocation.Line, int64(30); gotLine != wantLine {
+		t.Fatalf("except got.Line equal %d but got %d", wantLine, gotLine)
 	}
 	if gotFunc, wantFunc := got.ReportLocation.Function, "zap-cloudlogging.TestNewReportContext"; !strings.Contains(gotFunc, wantFunc) {
 		t.Fatalf("except got.Function contains %s but got %s", wantFunc, gotFunc)

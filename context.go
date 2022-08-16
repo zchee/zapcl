@@ -4,10 +4,9 @@
 package zapcloudlogging
 
 import (
-	"strconv"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	logpb "google.golang.org/genproto/googleapis/logging/v2"
 )
 
 const (
@@ -17,23 +16,21 @@ const (
 // reportLocation is the source code location information associated with the log entry
 // for the purpose of reporting an error, if any.
 type reportLocation struct {
-	File     string `json:"filePath"`
-	Line     string `json:"lineNumber"`
-	Function string `json:"functionName"`
+	*logpb.LogEntrySourceLocation
 }
 
 // MarshalLogObject implements zapcore.ObjectMarshaller.MarshalLogObject.
 func (l reportLocation) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddString("filePath", l.File)
-	enc.AddString("lineNumber", l.Line)
-	enc.AddString("functionName", l.Function)
+	enc.AddString("filePath", l.GetFile())
+	enc.AddInt64("lineNumber", l.GetLine())
+	enc.AddString("functionName", l.GetFunction())
 
 	return nil
 }
 
 // reportContext is the context information attached to a log for reporting errors.
 type reportContext struct {
-	ReportLocation reportLocation `json:"reportLocation"`
+	ReportLocation *reportLocation `json:"reportLocation"`
 }
 
 // MarshalLogObject implements zapcore.ObjectMarshaller.MarshalLogObject.
@@ -51,10 +48,12 @@ func newReportContext(pc uintptr, file string, line int, ok bool) *reportContext
 		function = fn.Name()
 	}
 	ctx := &reportContext{
-		ReportLocation: reportLocation{
-			File:     file,
-			Line:     strconv.Itoa(line),
-			Function: function,
+		ReportLocation: &reportLocation{
+			LogEntrySourceLocation: &logpb.LogEntrySourceLocation{
+				File:     file,
+				Line:     int64(line),
+				Function: function,
+			},
 		},
 	}
 
