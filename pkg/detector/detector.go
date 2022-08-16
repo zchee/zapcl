@@ -44,6 +44,12 @@ func (d *Detector) CloudPlatform() Platform {
 	d.attrs = fetcher
 
 	switch {
+	case d.isGCE(): // TODO(zchee): not implemented yet.
+		return UnknownPlatform // GCE
+
+	case d.isGKE(): // TODO(zchee): not implemented yet.
+		return UnknownPlatform // GKE
+
 	case d.isCloudRun():
 		return CloudRun
 
@@ -54,16 +60,10 @@ func (d *Detector) CloudPlatform() Platform {
 		return CloudFunctions
 
 	case d.isAppEngineStandard():
-		return UnknownPlatform
+		return AppEngineStandard
 
 	case d.isAppEngineFlex():
-		return UnknownPlatform
-
-	case d.isGCE(): // TODO(zchee): not implemented yet.
-		return UnknownPlatform // GCE
-
-	case d.isGKE(): // TODO(zchee): not implemented yet.
-		return UnknownPlatform // GKE
+		return AppEngineFlex
 	}
 
 	return UnknownPlatform
