@@ -73,7 +73,7 @@ coverage: ${TOOLS_BIN}/gotestsum  ## Takes packages test coverage.
 .PHONY: fmt
 fmt: ${TOOLS_BIN}/goimportz ${TOOLS_BIN}/gofumpt  ## Run goimportz and gofumpt.
 	$(call target)
-	@${TOOLS_BIN}/goimportz -local=${PKG},${ORG_PKG} -w $(shell find $$PWD -iname "*.go" -not -iname "*pb.go" -not -iwholename "*vendor*")
+	@${TOOLS_BIN}/goimportz -local=${PKG} -w $(shell find $$PWD -iname "*.go" -not -iname "*pb.go" -not -iwholename "*vendor*")
 	@${TOOLS_BIN}/gofumpt -extra -w $(shell find $$PWD -iname "*.go" -not -iname "*pb.go" -not -iwholename "*vendor*")
 
 .PHONY: lint
@@ -82,7 +82,7 @@ lint: lint/golangci-lint  ## Run all linters.
 .PHONY: lint/golangci-lint
 lint/golangci-lint: ${TOOLS_BIN}/golangci-lint .golangci.yaml  ## Run golangci-lint.
 	$(call target)
-	${TOOLS_BIN}/golangci-lint -j ${JOBS} run $(strip ${GO_LINT_FLAGS}) ./...
+	@${TOOLS_BIN}/golangci-lint -j ${JOBS} run $(strip ${GO_LINT_FLAGS}) ./...
 
 ##@ tools
 
