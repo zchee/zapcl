@@ -7,10 +7,11 @@ import (
 	"bytes"
 	"io"
 	"net/http"
-	"strconv"
+	"unicode/utf8"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	logtypepb "google.golang.org/genproto/googleapis/logging/type"
 )
 
 const (
@@ -19,80 +20,28 @@ const (
 
 // HTTPPayload represents a Cloud Logging httpRequest fields.
 type HTTPPayload struct {
-	// RequestMethod is the request method. Examples: "GET", "HEAD", "PUT", "POST".
-	RequestMethod string `json:"requestMethod"`
-
-	// RequestURL is the scheme (http, https), the host name, the path and the query portion of the URL that was requested.
-	//
-	// Example: "http://example.com/some/info?color=red".
-	RequestURL string `json:"requestUrl"`
-
-	// RequestSize is THE size of the HTTP request message in bytes, including the request headers and the request body.
-	RequestSize string `json:"requestSize"` // int64 format
-
-	// ResponseSize is the size of the HTTP response message sent back to the client, in bytes, including the response headers and the response body.
-	ResponseSize string `json:"responseSize"` // int64 format
-
-	// UserAgent is the user agent sent by the client. Example: "Mozilla/4.0 (compatible; MSIE 6.0; Windows 98; Q312461; .NET CLR 1.0.3705)".
-	UserAgent string `json:"userAgent"`
-
-	// RemoteIP is the IP address (IPv4 or IPv6) of the client that issued the HTTP request. This field can include port information.
-	//
-	// Examples: "192.168.1.1", "10.0.0.1:80", "FE80::0202:B3FF:FE1E:8329".
-	RemoteIP string `json:"remoteIp"`
-
-	// ServerIP is the IP address (IPv4 or IPv6) of the origin server that the request was sent to. This field can include port information.
-	//
-	// Examples: "192.168.1.1", "10.0.0.1:80", "FE80::0202:B3FF:FE1E:8329".
-	ServerIP string `json:"serverIp"`
-
-	// Referer is the Referer URL of the request, as defined in HTTP/1.1 Header Field Definitions.
-	Referer string `json:"referer"`
-
-	// Latency is the request processing Latency on the server, from the time the request was received until the response was sent.
-	// A duration in seconds with up to nine fractional digits, ending with 's'. Example: "3.5s".
-	Latency string `json:"latency"` // Duration format
-
-	// CacheFillBytes is the number of HTTP response bytes inserted into cache. Set only when a cache fill was attempted.
-	CacheFillBytes string `json:"cacheFillBytes"` // int64 format
-
-	// Protocol used for the request. Examples: "HTTP/1.1", "HTTP/2", "websocket"
-	Protocol string `json:"protocol"`
-
-	// Status is the response code indicating the Status of response. Examples: 200, 404.
-	Status int `json:"status"`
-
-	// CacheLookup whether or not a cache lookup was attempted.
-	CacheLookup bool `json:"cacheLookup"`
-
-	// CacheHit whether or not an entity was served from cache (with or without validation).
-	CacheHit bool `json:"cacheHit"`
-
-	// CacheValidatedWithOriginServer whether or not the response was validated with the origin server before being served from cache.
-	//
-	// This field is only meaningful if cacheHit is True.
-	CacheValidatedWithOriginServer bool `json:"cacheValidatedWithOriginServer"`
+	*logtypepb.HttpRequest
 }
 
 var _ zapcore.ObjectMarshaler = (*HTTPPayload)(nil)
 
 // MarshalLogObject implements zapcore.ObjectMarshaler.
 func (p *HTTPPayload) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddString("requestMethod", p.RequestMethod)
-	enc.AddString("requestUrl", p.RequestURL)
-	enc.AddString("requestSize", p.RequestSize)
-	enc.AddString("responseSize", p.ResponseSize)
-	enc.AddString("userAgent", p.UserAgent)
-	enc.AddString("remoteIp", p.RemoteIP)
-	enc.AddString("serverIp", p.ServerIP)
-	enc.AddString("referer", p.Referer)
-	enc.AddString("latency", p.Latency)
-	enc.AddString("cacheFillBytes", p.CacheFillBytes)
-	enc.AddString("protocol", p.Protocol)
-	enc.AddInt("status", p.Status)
-	enc.AddBool("cacheLookup", p.CacheLookup)
-	enc.AddBool("cacheHit", p.CacheHit)
-	enc.AddBool("cacheValidatedWithOriginServer", p.CacheValidatedWithOriginServer)
+	enc.AddString("requestMethod", p.GetRequestMethod())
+	enc.AddString("requestUrl", p.GetRequestUrl())
+	enc.AddInt64("requestSize", p.GetRequestSize())
+	enc.AddInt64("responseSize", p.GetResponseSize())
+	enc.AddString("userAgent", p.GetUserAgent())
+	enc.AddString("remoteIp", p.GetRemoteIp())
+	enc.AddString("serverIp", p.GetServerIp())
+	enc.AddString("referer", p.GetReferer())
+	enc.AddDuration("latency", p.GetLatency().AsDuration())
+	enc.AddInt64("cacheFillBytes", p.GetCacheFillBytes())
+	enc.AddString("protocol", p.GetProtocol())
+	enc.AddInt32("status", p.GetStatus())
+	enc.AddBool("cacheLookup", p.GetCacheLookup())
+	enc.AddBool("cacheHit", p.GetCacheHit())
+	enc.AddBool("cacheValidatedWithOriginServer", p.GetCacheValidatedWithOriginServer())
 
 	return nil
 }
@@ -108,31 +57,56 @@ func NewHTTPRequest(r *http.Request, res *http.Response) *HTTPPayload {
 	}
 
 	req := &HTTPPayload{
-		RequestMethod: r.Method,
-		Status:        res.StatusCode,
-		UserAgent:     r.UserAgent(),
-		RemoteIP:      r.RemoteAddr,
-		Referer:       r.Referer(),
-		Protocol:      r.Proto,
+		HttpRequest: &logtypepb.HttpRequest{
+			RequestMethod: r.Method,
+			Status:        int32(res.StatusCode),
+			UserAgent:     r.UserAgent(),
+			RemoteIp:      r.RemoteAddr,
+			Referer:       r.Referer(),
+			Protocol:      r.Proto,
+		},
 	}
 
 	if url := r.URL; url != nil {
-		req.RequestURL = url.String()
+		u := *r.URL
+		u.Fragment = ""
+		req.RequestUrl = fixUTF8(u.String())
 	}
 
 	buf := new(bytes.Buffer)
 	if body := r.Body; body != nil {
 		n, _ := io.Copy(buf, body)
-		req.RequestSize = strconv.FormatInt(n, 10)
+		req.RequestSize = n
 	}
 
 	if body := res.Body; body != nil {
 		buf.Reset()
 		n, _ := io.Copy(buf, body)
-		req.ResponseSize = strconv.FormatInt(n, 10)
+		req.ResponseSize = n
 	}
 
 	return req
+}
+
+// fixUTF8 is a helper that fixes an invalid UTF-8 string by replacing
+// invalid UTF-8 runes with the Unicode replacement character (U+FFFD).
+// See Issue https://github.com/googleapis/google-cloud-go/issues/1383.
+func fixUTF8(s string) string {
+	if utf8.ValidString(s) {
+		return s
+	}
+
+	// Otherwise time to build the sequence.
+	buf := new(bytes.Buffer)
+	buf.Grow(len(s))
+	for _, r := range s {
+		if utf8.ValidRune(r) {
+			buf.WriteRune(r)
+		} else {
+			buf.WriteRune('\uFFFD')
+		}
+	}
+	return buf.String()
 }
 
 // HTTP adds the correct Stackdriver "httpRequest" field.
