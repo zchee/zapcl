@@ -4,16 +4,50 @@
 package zapcloudlogging
 
 import (
-	"cloud.google.com/go/logging"
+	cloudlogging "cloud.google.com/go/logging"
 	"go.uber.org/zap/zapcore"
 )
 
-var levelToSeverity = map[zapcore.Level]logging.Severity{
-	zapcore.DebugLevel:  logging.Debug,
-	zapcore.InfoLevel:   logging.Info,
-	zapcore.WarnLevel:   logging.Warning,
-	zapcore.ErrorLevel:  logging.Error,
-	zapcore.DPanicLevel: logging.Critical,
-	zapcore.PanicLevel:  logging.Alert,
-	zapcore.FatalLevel:  logging.Emergency,
+var levelToSeverity = map[zapcore.Level]cloudlogging.Severity{
+	zapcore.DebugLevel:  cloudlogging.Debug,
+	zapcore.InfoLevel:   cloudlogging.Info,
+	zapcore.WarnLevel:   cloudlogging.Warning,
+	zapcore.ErrorLevel:  cloudlogging.Error,
+	zapcore.DPanicLevel: cloudlogging.Critical,
+	zapcore.PanicLevel:  cloudlogging.Alert,
+	zapcore.FatalLevel:  cloudlogging.Emergency,
+}
+
+type logger struct{}
+
+var _ zapcore.Core = (*logger)(nil)
+
+// Enabled decides whether a given logging level is enabled when logging a
+// message.
+func (l *logger) Enabled(lvl zapcore.Level) bool {
+	return false
+}
+
+// With adds structured context to the Core.
+func (l *logger) With(fields []zapcore.Field) zapcore.Core {
+	return nil
+}
+
+// Check determines whether the supplied Entry should be logged (using the
+// embedded LevelEnabler and possibly some extra logic). If the entry
+// should be logged, the Core adds itself to the CheckedEntry and returns
+// the result.
+func (l *logger) Check(entry zapcore.Entry, centry *zapcore.CheckedEntry) *zapcore.CheckedEntry {
+	return nil
+}
+
+// Write serializes the Entry and any Fields supplied at the log site and
+// writes them to their destination.
+func (l *logger) Write(entry zapcore.Entry, fields []zapcore.Field) error {
+	return nil
+}
+
+// Sync flushes buffered logs (if any).
+func (l *logger) Sync() error {
+	return nil
 }
