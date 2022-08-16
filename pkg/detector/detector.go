@@ -25,15 +25,12 @@ const (
 	CloudRunJobs
 
 	// CloudFunctions is the Cloud Functions platform.
-	// TODO(zchee): not implemented yet.
 	CloudFunctions
 
 	// AppEngineStandard is the App Engine Standard 2nd platform.
-	// TODO(zchee): not implemented yet.
 	AppEngineStandard
 
 	// AppEngineFlex is the App Engine Flex platform.
-	// TODO(zchee): not implemented yet.
 	AppEngineFlex
 )
 
