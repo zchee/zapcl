@@ -66,14 +66,14 @@ coverage: CGO_ENABLED=1
 coverage: GO_FLAGS=-tags='$(subst ${space},${comma},${GO_BUILDTAGS})'
 coverage: ${TOOLS_BIN}/gotestsum  ## Takes packages test coverage.
 	$(call target)
-	@CGO_ENABLED=${CGO_ENABLED} ${GO_TEST} ${GO_TEST_FLAGS} -covermode=atomic -coverpkg=${PKG}/... -coverprofile=${GO_COVERAGE_OUT} $(strip ${GO_FLAGS}) ${GO_PKGS}
+	@CGO_ENABLED=${CGO_ENABLED} ${GO_TEST} ${GO_TEST_FLAGS} -covermode=atomic -coverpkg=./... -coverprofile=${GO_COVERAGE_OUT} $(strip ${GO_FLAGS}) ${GO_PKGS}
 
 ##@ fmt, lint
 
 .PHONY: fmt
 fmt: ${TOOLS_BIN}/goimportz ${TOOLS_BIN}/gofumpt  ## Run goimportz and gofumpt.
 	$(call target)
-	@${TOOLS_BIN}/goimportz -local=${PKG},${ORG_PKG} -w $(shell find $$PWD -iname "*.go" -not -iname "*pb.go" -not -iwholename "*vendor*")
+	@${TOOLS_BIN}/goimportz -local=${PKG} -w $(shell find $$PWD -iname "*.go" -not -iname "*pb.go" -not -iwholename "*vendor*")
 	@${TOOLS_BIN}/gofumpt -extra -w $(shell find $$PWD -iname "*.go" -not -iname "*pb.go" -not -iwholename "*vendor*")
 
 .PHONY: lint
@@ -82,7 +82,7 @@ lint: lint/golangci-lint  ## Run all linters.
 .PHONY: lint/golangci-lint
 lint/golangci-lint: ${TOOLS_BIN}/golangci-lint .golangci.yaml  ## Run golangci-lint.
 	$(call target)
-	${TOOLS_BIN}/golangci-lint -j ${JOBS} run $(strip ${GO_LINT_FLAGS}) ./...
+	@${TOOLS_BIN}/golangci-lint -j ${JOBS} run $(strip ${GO_LINT_FLAGS}) ./...
 
 ##@ tools
 

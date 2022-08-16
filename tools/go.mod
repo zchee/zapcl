@@ -2,6 +2,8 @@ module github.com/zchee/zap-cloudlogging/tools
 
 go 1.19
 
+replace mvdan.cc/gofumpt => github.com/mvdan/gofumpt v0.3.2-0.20220803140108-70d7433507d8
+
 require (
 	github.com/golangci/golangci-lint v1.48.1-0.20220815195632-5e140494b614
 	github.com/zchee/goimportz v1.0.0

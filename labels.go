@@ -30,17 +30,17 @@ type labelMap struct {
 }
 
 // Add adds the val for a key.
-func (l labelMap) Add(key, val string) {
+func (l *labelMap) Add(key, val string) {
 	l.m.Store(key, val)
 }
 
 // Delete deletes the value for a key.
-func (l labelMap) Delete(key string) {
+func (l *labelMap) Delete(key string) {
 	l.m.Delete(key)
 }
 
 // MarshalLogObject implements zapcore.ObjectMarshaler.
-func (l labelMap) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+func (l *labelMap) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	l.m.Range(func(key, val any) bool {
 		enc.AddString(key.(string), val.(string))
 
