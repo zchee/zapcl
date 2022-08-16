@@ -1562,3 +1562,26 @@ func detectCloudRunJobsResource() *MonitoredResource {
 		},
 	}
 }
+
+func detectCloudFunctionsResource() *MonitoredResource {
+	projectID := resourceDetector.metadataProjectID()
+	if projectID == "" {
+		return nil
+	}
+
+	funcname := resourceDetector.attrs.EnvVar(detector.EnvCloudFunctionsKService)
+	revision := resourceDetector.attrs.EnvVar(detector.EnvCloudRunRevision)
+
+	return &MonitoredResource{
+		logIDStdout: "cloudfunctions.googleapis.com%2Fcloud-functions",
+		logIDStderr: "cloudfunctions.googleapis.com%2Fcloud-functions",
+		MonitoredResource: &mrpb.MonitoredResource{
+			Type: string(CloudFunction),
+			Labels: Label{
+				"project_id":    projectID,
+				"function_name": funcname,
+				"region":        revision,
+			},
+		},
+	}
+}
