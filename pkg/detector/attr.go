@@ -24,7 +24,7 @@ type resourceFetcher struct {
 
 var _ ResourceAttributesFetcher = (*resourceFetcher)(nil)
 
-// EnvVar uses os.LookupEnv() to lookup for environment variable by name.
+// EnvVar uses os.Getenv() to gets for environment variable by name.
 func (g *resourceFetcher) EnvVar(name string) string {
 	return os.Getenv(name)
 }
@@ -59,7 +59,7 @@ var fetcher = &resourceFetcher{
 		},
 	})}
 
-// ResourceAttributes provides read-only access to the ResourceAtttributesGetter interface implementation.
+// ResourceAttributes provides read-only access to the ResourceAttributesFetcher interface implementation.
 func ResourceAttributes() ResourceAttributesFetcher {
 	return fetcher
 }
