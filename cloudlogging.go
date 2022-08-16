@@ -65,9 +65,9 @@ func (nopWriteSyncer) Sync() error { return nil }
 type core struct {
 	zapcore.LevelEnabler
 
-	fields []zapcore.Field
 	enc    zapcore.Encoder
 	ws     zapcore.WriteSyncer
+	fields []zapcore.Field
 }
 
 var _ zapcore.Core = (*core)(nil)
