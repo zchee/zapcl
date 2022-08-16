@@ -1469,7 +1469,8 @@ const (
 type MonitoredResource struct {
 	*mrpb.MonitoredResource
 
-	logID string
+	logIDStdout string
+	logIDStderr string
 }
 
 type resource struct {
@@ -1524,7 +1525,8 @@ func detectCloudRunResource() *MonitoredResource {
 	revision := resourceDetector.attrs.EnvVar(detector.EnvCloudRunRevision)
 
 	return &MonitoredResource{
-		logID: "run.googleapis.com%2Fstdout",
+		logIDStdout: "run.googleapis.com%2Fstdout",
+		logIDStderr: "run.googleapis.com%2Fstderr",
 		MonitoredResource: &mrpb.MonitoredResource{
 			Type: string(CloudRunRevision),
 			Labels: Label{
@@ -1548,7 +1550,8 @@ func detectCloudRunJobsResource() *MonitoredResource {
 	service := resourceDetector.attrs.EnvVar(detector.EnvCloudRunJobsService)
 
 	return &MonitoredResource{
-		logID: "run.googleapis.com%2Fstdout",
+		logIDStdout: "run.googleapis.com%2Fstdout",
+		logIDStderr: "run.googleapis.com%2Fstderr",
 		MonitoredResource: &mrpb.MonitoredResource{
 			Type: string(CloudRunJob),
 			Labels: Label{
