@@ -7,7 +7,7 @@ package detector
 type Platform uint8
 
 const (
-	// UnknownPlatform is teh unknown platform.
+	// UnknownPlatform is the unknown platform.
 	UnknownPlatform Platform = iota
 
 	// GKE is the Kubernetes Engine platform.
@@ -34,18 +34,19 @@ const (
 	AppEngineFlex
 )
 
-// Detector collects resource information for all GCP platforms
+// Detector collects resource information for all GCP platforms.
 type Detector struct {
 	attrs ResourceAttributesFetcher
 }
 
+// NewDetector returns the new Detector based by attrs.
 func NewDetector(attrs ResourceAttributesFetcher) *Detector {
 	return &Detector{
 		attrs: attrs,
 	}
 }
 
-// CloudPlatform returns the platform on which this program is running
+// CloudPlatform returns the platform on which this program is running.
 func (d *Detector) CloudPlatform() Platform {
 	d.attrs = fetcher
 

@@ -38,9 +38,7 @@ type reportContext struct {
 
 // MarshalLogObject implements zapcore.ObjectMarshaller.MarshalLogObject.
 func (c reportContext) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddObject("reportLocation", c.ReportLocation)
-
-	return nil
+	return enc.AddObject("reportLocation", c.ReportLocation)
 }
 
 func newReportContext(pc uintptr, file string, line int, ok bool) *reportContext {

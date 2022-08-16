@@ -79,7 +79,7 @@ func OperationCont(id, producer string) zapcore.Field {
 
 // OperationEnd is a convenience function for `Operation`.
 //
-// It should be called for the last operation lo
+// It should be called for the last operation log.
 func OperationEnd(id, producer string) zapcore.Field {
 	return Operation(id, producer, false, true)
 }

@@ -131,7 +131,7 @@ func (ci *frames) Next() (frame frame, more bool) {
 //	https://github.com/golang/go/blob/go1.19/src/runtime/extern.go#L217-L225
 func Caller(skip int) (pc uintptr, file string, line int, ok bool) {
 	rpc := make([]uintptr, 1)
-	n := callers(skip+1, rpc[:])
+	n := callers(skip+1, rpc)
 	if n < 1 {
 		return
 	}

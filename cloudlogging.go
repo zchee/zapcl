@@ -5,6 +5,7 @@ package zapcloudlogging
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"time"
 
@@ -126,13 +127,13 @@ func (c *core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 
 	buf, err := c.enc.EncodeEntry(ent, fields)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not encode entry: %w", err)
 	}
 
 	_, err = c.ws.Write(buf.Bytes())
 	buf.Free()
 	if err != nil {
-		return err
+		return fmt.Errorf("could not write buf: %w", err)
 	}
 
 	if ent.Level > zapcore.ErrorLevel {

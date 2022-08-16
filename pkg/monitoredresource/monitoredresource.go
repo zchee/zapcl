@@ -326,8 +326,8 @@ const (
 	// project_id: The identifier of the GCP project associated with this resource, such as "my-project".
 	// location: The Cloud Dataproc region to which the batch was submitted.
 	// batch_id: The user-specified batch id.
-	// cloud_dataproc_cluster
 
+	// cloud_dataproc_cluster
 	// Cloud Dataproc Cluster	A Dataproc cluster with separate cluster name and id labels.
 	//
 	// project_id: The identifier of the GCP project associated with this resource, such as "my-project".
