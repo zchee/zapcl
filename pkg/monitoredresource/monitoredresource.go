@@ -1466,6 +1466,12 @@ const (
 	// workflow_id: The ID of the workflow.
 )
 
+type MonitoredResource struct {
+	*mrpb.MonitoredResource
+
+	logID string
+}
+
 type resource struct {
 	pb    *mrpb.MonitoredResource
 	attrs detector.ResourceAttributesFetcher
@@ -1494,7 +1500,7 @@ func (r *resource) metadataRegion() string {
 	return ""
 }
 
-// isMetadataActive queries valid response on "/computeMetadata/v1/" URL
+// isMetadataActive queries valid response on "/computeMetadata/v1/" URL.
 func (r *resource) isMetadataActive() bool {
 	data := r.attrs.Metadata("")
 
@@ -1506,7 +1512,7 @@ var resourceDetector = &resource{
 	once:  new(sync.Once),
 }
 
-func detectCloudRunResource() *mrpb.MonitoredResource {
+func detectCloudRunResource() *MonitoredResource {
 	projectID := resourceDetector.metadataProjectID()
 	if projectID == "" {
 		return nil
@@ -1517,14 +1523,17 @@ func detectCloudRunResource() *mrpb.MonitoredResource {
 	service := resourceDetector.attrs.EnvVar(detector.EnvCloudRunService)
 	revision := resourceDetector.attrs.EnvVar(detector.EnvCloudRunRevision)
 
-	return &mrpb.MonitoredResource{
-		Type: string(CloudRunRevision),
-		Labels: Label{
-			"project_id":         projectID,
-			"service_name":       service,
-			"revision_name":      revision,
-			"location":           region,
-			"configuration_name": config,
+	return &MonitoredResource{
+		logID: "run.googleapis.com%2Fstdout",
+		MonitoredResource: &mrpb.MonitoredResource{
+			Type: string(CloudRunRevision),
+			Labels: Label{
+				"project_id":         projectID,
+				"service_name":       service,
+				"revision_name":      revision,
+				"location":           region,
+				"configuration_name": config,
+			},
 		},
 	}
 }
