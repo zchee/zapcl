@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"go.uber.org/zap/zapcore"
 	mrpb "google.golang.org/genproto/googleapis/api/monitoredres"
 
 	"github.com/zchee/zap-cloudlogging/pkg/detector"
@@ -1469,8 +1470,16 @@ const (
 type MonitoredResource struct {
 	*mrpb.MonitoredResource
 
-	logID       string
-	logIDStderr string
+	LogID string
+}
+
+// MarshalLogObject implements zapcore.ObjectMarshaler.
+func (mr *MonitoredResource) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	for key, val := range mr.Labels {
+		enc.AddString(key, val)
+	}
+
+	return nil
 }
 
 type resource struct {
@@ -1513,6 +1522,24 @@ var resourceDetector = &resource{
 	once:  new(sync.Once),
 }
 
+// Detect returns new platform specific MonitoredResource.
+func Detect() *MonitoredResource {
+	d := detector.NewDetector(resourceDetector.attrs)
+
+	switch d.CloudPlatform() {
+	case detector.CloudRun:
+		return detectCloudRunResource()
+
+	case detector.CloudRunJobs:
+		return detectCloudRunJobsResource()
+
+	case detector.CloudFunctions:
+		return detectCloudFunctionsResource()
+	}
+
+	panic("unreachable")
+}
+
 func detectCloudRunResource() *MonitoredResource {
 	projectID := resourceDetector.metadataProjectID()
 	if projectID == "" {
@@ -1525,7 +1552,7 @@ func detectCloudRunResource() *MonitoredResource {
 	revision := resourceDetector.attrs.EnvVar(detector.EnvCloudRunRevision)
 
 	return &MonitoredResource{
-		logID: "run.googleapis.com%2Fstdout",
+		LogID: "run.googleapis.com%2Fstdout",
 		MonitoredResource: &mrpb.MonitoredResource{
 			Type: string(CloudRunRevision),
 			Labels: Label{
@@ -1549,7 +1576,7 @@ func detectCloudRunJobsResource() *MonitoredResource {
 	jobname := resourceDetector.attrs.EnvVar(detector.EnvCloudRunJobsService)
 
 	return &MonitoredResource{
-		logID: "run.googleapis.com%2Fstdout",
+		LogID: "run.googleapis.com%2Fstdout",
 		MonitoredResource: &mrpb.MonitoredResource{
 			Type: string(CloudRunJob),
 			Labels: Label{
@@ -1571,7 +1598,7 @@ func detectCloudFunctionsResource() *MonitoredResource {
 	revision := resourceDetector.attrs.EnvVar(detector.EnvCloudRunRevision)
 
 	return &MonitoredResource{
-		logID: "cloudfunctions.googleapis.com%2Fcloud-functions",
+		LogID: "cloudfunctions.googleapis.com%2Fcloud-functions",
 		MonitoredResource: &mrpb.MonitoredResource{
 			Type: string(CloudFunction),
 			Labels: Label{
