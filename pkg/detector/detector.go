@@ -39,6 +39,12 @@ type Detector struct {
 	attrs ResourceAttributesFetcher
 }
 
+func NewDetector(attrs ResourceAttributesFetcher) *Detector {
+	return &Detector{
+		attrs: attrs,
+	}
+}
+
 // CloudPlatform returns the platform on which this program is running
 func (d *Detector) CloudPlatform() Platform {
 	d.attrs = fetcher
