@@ -13,7 +13,7 @@ func TestErrorReport(t *testing.T) {
 
 	got := ErrorReport(Caller(0)).Interface.(*reportContext)
 
-	if gotFile, wantFile := got.ReportLocation.File, "zap-cloudlogging/context_test.go"; !strings.Contains(gotFile, wantFile) {
+	if gotFile, wantFile := got.ReportLocation.File, "zap-cloudlogging/error_report_test.go"; !strings.Contains(gotFile, wantFile) {
 		t.Errorf("except contains got %s in %s", gotFile, wantFile)
 	}
 	if gotLine, wantLine := got.ReportLocation.Line, int64(14); gotLine != wantLine {
@@ -29,7 +29,7 @@ func TestNewReportContext(t *testing.T) {
 
 	got := newReportContext(Caller(0))
 
-	if gotFile, wantFile := got.ReportLocation.File, "zap-cloudlogging/context_test.go"; !strings.Contains(gotFile, wantFile) {
+	if gotFile, wantFile := got.ReportLocation.File, "zap-cloudlogging/error_report_test.go"; !strings.Contains(gotFile, wantFile) {
 		t.Fatalf("except contains got %s in %s", gotFile, wantFile)
 	}
 	if gotLine, wantLine := got.ReportLocation.Line, int64(30); gotLine != wantLine {
