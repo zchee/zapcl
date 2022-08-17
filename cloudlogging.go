@@ -40,7 +40,7 @@ func encoderConfig() zapcore.EncoderConfig {
 		MessageKey:     "message",
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    encodeLevel,
+		EncodeLevel:    levelEncoder,
 		EncodeTime:     rfc3339NanoTimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
@@ -56,7 +56,7 @@ func toCamelCase(s string) string {
 	return string(unicode.ToUpper(rune(s[0]))) + strings.ToLower(s[1:])
 }
 
-func encodeLevel(lvl zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
+func levelEncoder(lvl zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(toCamelCase(levelToSeverity[lvl].Enum().String()))
 }
 
