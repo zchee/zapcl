@@ -20,104 +20,125 @@ func TestHTTPRequestField(t *testing.T) {
 	t.Parallel()
 
 	tests := map[string]struct {
-		req  *http.Request
+		r    *http.Request
 		res  *http.Response
 		want *HTTPPayload
 	}{
 		"Empty": {
-			nil,
-			nil,
-			&HTTPPayload{
+			r:   nil,
+			res: nil,
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{},
 			},
 		},
 		"RequestMethod": {
-			&http.Request{
+			r: &http.Request{
 				Method: "GET",
 			},
-			nil,
-			&HTTPPayload{
+			res: nil,
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					RequestMethod: "GET",
 				},
 			},
 		},
 		"Status": {
-			nil,
-			&http.Response{StatusCode: 404},
-			&HTTPPayload{
+			r:   nil,
+			res: &http.Response{StatusCode: 404},
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					Status: 404,
 				},
 			},
 		},
 		"UserAgent": {
-			&http.Request{Header: http.Header{"User-Agent": []string{"hello world"}}},
-			nil,
-			&HTTPPayload{
+			r: &http.Request{
+				Header: http.Header{
+					"User-Agent": []string{"hello world"},
+				},
+			},
+			res: nil,
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					UserAgent: "hello world",
 				},
 			},
 		},
 		"RemoteIP": {
-			&http.Request{RemoteAddr: "127.0.0.1"},
-			nil,
-			&HTTPPayload{
+			r: &http.Request{
+				RemoteAddr: "127.0.0.1",
+			},
+			res: nil,
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					RemoteIp: "127.0.0.1",
 				},
 			},
 		},
 		"Referrer": {
-			&http.Request{Header: http.Header{"Referer": []string{"hello universe"}}},
-			nil,
-			&HTTPPayload{
+			r: &http.Request{
+				Header: http.Header{
+					"Referer": []string{"hello universe"},
+				},
+			},
+			res: nil,
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					Referer: "hello universe",
 				},
 			},
 		},
 		"Protocol": {
-			&http.Request{Proto: "HTTP/1.1"},
-			nil,
-			&HTTPPayload{
+			r: &http.Request{
+				Proto: "HTTP/1.1",
+			},
+			res: nil,
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					Protocol: "HTTP/1.1",
 				},
 			},
 		},
 		"RequestURL": {
-			&http.Request{URL: &url.URL{Host: "example.com", Scheme: "https"}},
-			nil,
-			&HTTPPayload{
+			r: &http.Request{
+				URL: &url.URL{
+					Host:   "example.com",
+					Scheme: "https",
+				},
+			},
+			res: nil,
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					RequestUrl: "https://example.com",
 				},
 			},
 		},
 		"RequestSize": {
-			&http.Request{Body: io.NopCloser(strings.NewReader("12345"))},
-			nil,
-			&HTTPPayload{
+			r: &http.Request{
+				Body: io.NopCloser(strings.NewReader("12345")),
+			},
+			res: nil,
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					RequestSize: 5,
 				},
 			},
 		},
 		"ResponseSize": {
-			nil,
-			&http.Response{Body: io.NopCloser(strings.NewReader("12345"))},
-			&HTTPPayload{
+			r: nil,
+			res: &http.Response{
+				Body: io.NopCloser(strings.NewReader("12345")),
+			},
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					ResponseSize: 5,
 				},
 			},
 		},
-		"simple request": {
-			httptest.NewRequest("POST", "/", strings.NewReader("12345")),
-			nil,
-			&HTTPPayload{
+		"SimpleRequest": {
+			r:   httptest.NewRequest("POST", "/", strings.NewReader("12345")),
+			res: nil,
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					RequestSize:   5,
 					RequestMethod: "POST",
@@ -127,20 +148,26 @@ func TestHTTPRequestField(t *testing.T) {
 				},
 			},
 		},
-		"simple response": {
-			nil,
-			&http.Response{Body: io.NopCloser(strings.NewReader("12345")), StatusCode: 404},
-			&HTTPPayload{
+		"SimpleResponse": {
+			r: nil,
+			res: &http.Response{
+				Body:       io.NopCloser(strings.NewReader("12345")),
+				StatusCode: 404,
+			},
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					ResponseSize: 5,
 					Status:       404,
 				},
 			},
 		},
-		"request & response": {
-			&http.Request{Method: "POST", Proto: "HTTP/1.1"},
-			&http.Response{StatusCode: 200},
-			&HTTPPayload{
+		"RequestAndResponse": {
+			r: &http.Request{
+				Method: "POST",
+				Proto:  "HTTP/1.1",
+			},
+			res: &http.Response{StatusCode: 200},
+			want: &HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
 					RequestMethod: "POST",
 					Protocol:      "HTTP/1.1",
@@ -154,7 +181,7 @@ func TestHTTPRequestField(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			if diff := cmp.Diff(tt.want, NewHTTPRequest(tt.req, tt.res),
+			if diff := cmp.Diff(tt.want, NewHTTPRequest(tt.r, tt.res),
 				protocmp.Transform(),
 			); diff != "" {
 				t.Fatalf("(-want, +got)\n%s\n", diff)

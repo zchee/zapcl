@@ -14,13 +14,13 @@ func TestErrorReport(t *testing.T) {
 	got := ErrorReport(Caller(0)).Interface.(*reportContext)
 
 	if gotFile, wantFile := got.ReportLocation.File, "zap-cloudlogging/context_test.go"; !strings.Contains(gotFile, wantFile) {
-		t.Fatalf("except got.File contains %s but got %s", wantFile, gotFile)
+		t.Errorf("except contains got %s in %s", gotFile, wantFile)
 	}
 	if gotLine, wantLine := got.ReportLocation.Line, int64(14); gotLine != wantLine {
-		t.Fatalf("except got.Line equal %d but got %d", wantLine, gotLine)
+		t.Errorf("except equal got %d in %d", gotLine, wantLine)
 	}
 	if gotFunc, wantFunc := got.ReportLocation.Function, "zap-cloudlogging.TestErrorReport"; !strings.Contains(gotFunc, wantFunc) {
-		t.Fatalf("except got.Function contains %s but got %s", wantFunc, gotFunc)
+		t.Errorf("except contains got %s in %s", gotFunc, wantFunc)
 	}
 }
 
@@ -30,12 +30,12 @@ func TestNewReportContext(t *testing.T) {
 	got := newReportContext(Caller(0))
 
 	if gotFile, wantFile := got.ReportLocation.File, "zap-cloudlogging/context_test.go"; !strings.Contains(gotFile, wantFile) {
-		t.Fatalf("except got.File contains %s but got %s", wantFile, gotFile)
+		t.Fatalf("except contains got %s in %s", gotFile, wantFile)
 	}
 	if gotLine, wantLine := got.ReportLocation.Line, int64(30); gotLine != wantLine {
-		t.Fatalf("except got.Line equal %d but got %d", wantLine, gotLine)
+		t.Fatalf("except equal got %d in %d", gotLine, wantLine)
 	}
 	if gotFunc, wantFunc := got.ReportLocation.Function, "zap-cloudlogging.TestNewReportContext"; !strings.Contains(gotFunc, wantFunc) {
-		t.Fatalf("except got.Function contains %s but got %s", wantFunc, gotFunc)
+		t.Errorf("except contains got %s in %s", gotFunc, wantFunc)
 	}
 }
