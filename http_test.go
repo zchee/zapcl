@@ -47,7 +47,8 @@ func TestHTTPRequestField(t *testing.T) {
 			&http.Response{StatusCode: 404},
 			&HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
-					Status: 404},
+					Status: 404,
+				},
 			},
 		},
 		"UserAgent": {
@@ -55,7 +56,8 @@ func TestHTTPRequestField(t *testing.T) {
 			nil,
 			&HTTPPayload{
 				HttpRequest: &logtypepb.HttpRequest{
-					UserAgent: "hello world"},
+					UserAgent: "hello world",
+				},
 			},
 		},
 		"RemoteIP": {
