@@ -19,10 +19,10 @@ const (
 	traceSampledKey = "logging.googleapis.com/trace_sampled"
 )
 
-// TraceFieldsFromContext adds the correct Cloud Logging "trace", "span", "trace_sampled" fields from ctx.
+// TraceField adds the correct Cloud Logging "trace", "span", "trace_sampled" fields from ctx.
 //
 //	https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
-func TraceFieldsFromContext(ctx context.Context) []zapcore.Field {
+func TraceField(ctx context.Context) []zapcore.Field {
 	projectID, err := metadata.ProjectID()
 	if err != nil {
 		panic(err)
