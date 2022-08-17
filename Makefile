@@ -23,7 +23,7 @@ GO_FLAGS ?= -tags='${GO_BUILDTAGS}' -ldflags='${GO_LDFLAGS}'
 GO_PACKAGES = $(shell go list ./...)
 GO_TEST_PACKAGES ?= $(shell go list -f='{{if or .TestGoFiles .XTestGoFiles}}{{.ImportPath}}{{end}}' ./...)
 
-GO_TEST ?= ${TOOLS_BIN}/gotestsum --
+GO_TEST ?= ${TOOLS_BIN}/gotestsum -f standard-verbose --
 GO_TEST_FLAGS ?= -race -count=1 -shuffle=on
 GO_TEST_FUNC ?= .
 GO_COVERAGE_OUT ?= coverage.out
