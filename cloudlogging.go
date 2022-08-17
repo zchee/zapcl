@@ -157,10 +157,9 @@ func (c *core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 // Sync implemenns zapcore.Core.Sync.
 func (c *core) Sync() error {
 	if err := c.ws.Sync(); err != nil {
-		if knownSyncError(err) {
-			return nil
+		if !knownSyncError(err) {
+			return fmt.Errorf("faild to sync logger: %w", err)
 		}
-		return fmt.Errorf("faild to sync logger: %w", err)
 	}
 
 	return nil
