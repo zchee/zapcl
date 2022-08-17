@@ -8,9 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"strings"
 	"time"
-	"unicode"
 
 	json "github.com/goccy/go-json"
 	"go.uber.org/zap"
@@ -52,12 +50,8 @@ func encoderConfig() zapcore.EncoderConfig {
 	}
 }
 
-func toCamelCase(s string) string {
-	return string(unicode.ToUpper(rune(s[0]))) + strings.ToLower(s[1:])
-}
-
 func levelEncoder(lvl zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString(toCamelCase(levelToSeverity[lvl].Enum().String()))
+	enc.AppendString(levelToSeverity[lvl].Enum().String())
 }
 
 // rfc3339NanoTimeEncoder serializes a time.Time to an RFC3339Nano-formatted
