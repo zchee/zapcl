@@ -4,6 +4,10 @@
 package zapcloudlogging
 
 import (
+	"go/build"
+	"path/filepath"
+	"strings"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	logpb "google.golang.org/genproto/googleapis/logging/v2"
@@ -33,7 +37,7 @@ func newSource(pc uintptr, file string, line int, ok bool) *sourceLocation {
 
 	var function string
 	if fn := FuncForPC(pc); fn != nil {
-		function = fn.Name()
+		function = strings.TrimPrefix(fn.Name(), filepath.Join(build.Default.GOPATH, "src")+"/")
 	}
 
 	loc := &sourceLocation{
