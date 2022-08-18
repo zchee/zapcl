@@ -14,7 +14,12 @@ import (
 )
 
 const (
-	sourceLocationKey = "logging.googleapis.com/sourceLocation"
+	// SourceLocationKey is the Source code location information associated with the log entry, if any.
+	//
+	// sourceLocation field:
+	// - https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#FIELDS.source_location
+	// - https://cloud.google.com/logging/docs/structured-logging#special-payload-fields
+	SourceLocationKey = "logging.googleapis.com/sourceLocation"
 )
 
 type sourceLocation struct {
@@ -53,7 +58,7 @@ func newSource(pc uintptr, file string, line int, ok bool) *sourceLocation {
 
 // SourceLocation adds the Cloud Logging "sourceLocation" field.
 //
-//	https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#LogEntrySourceLocation
+// LogEntrySourceLocation: https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#LogEntrySourceLocation
 func SourceLocation(pc uintptr, file string, line int, ok bool) zapcore.Field {
-	return zap.Object(sourceLocationKey, newSource(pc, file, line, ok))
+	return zap.Object(SourceLocationKey, newSource(pc, file, line, ok))
 }

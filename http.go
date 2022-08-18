@@ -15,7 +15,12 @@ import (
 )
 
 const (
-	httpRequestKey = "httpRequest"
+	// HTTPRequestKey a structured record in the format of the LogEntry HttpRequest field.
+	//
+	// httpRequest field:
+	// - https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#FIELDS.http_request
+	// - https://cloud.google.com/logging/docs/structured-logging#special-payload-fields
+	HTTPRequestKey = "httpRequest"
 )
 
 // HTTPPayload represents a Cloud Logging httpRequest fields.
@@ -109,9 +114,9 @@ func fixUTF8(s string) string {
 	return buf.String()
 }
 
-// HTTP adds the correct Stackdriver "httpRequest" field.
+// HTTP adds the Cloud Logging "httpRequest" field.
 //
-//	https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#HttpRequest
+// httpRequest: https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#HttpRequest
 func HTTP(req *HTTPPayload) zap.Field {
-	return zap.Object(httpRequestKey, req)
+	return zap.Object(HTTPRequestKey, req)
 }

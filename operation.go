@@ -10,7 +10,12 @@ import (
 )
 
 const (
-	operationKey = "logging.googleapis.com/operation"
+	// OperationKey is the value of this field is also used by the Logs Explorer to group related log entries.
+	//
+	// operation field:
+	// - https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#FIELDS.operation
+	// - https://cloud.google.com/logging/docs/structured-logging#special-payload-fields
+	OperationKey = "logging.googleapis.com/operation"
 )
 
 // operation is the payload of Cloud Logging operation field.
@@ -32,7 +37,7 @@ func (op operation) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 
 // Operation adds the Cloud Logging "operation" fields from args.
 //
-//	https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#LogEntryOperation
+// operation: https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#LogEntryOperation
 func Operation(id, producer string, first, last bool) zapcore.Field {
 	op := &operation{
 		LogEntryOperation: &logpb.LogEntryOperation{
@@ -43,7 +48,7 @@ func Operation(id, producer string, first, last bool) zapcore.Field {
 		},
 	}
 
-	return zap.Object(operationKey, op)
+	return zap.Object(OperationKey, op)
 }
 
 // OperationStart is a convenience function for `Operation`.

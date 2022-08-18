@@ -34,7 +34,7 @@ func TestLabels(t *testing.T) {
 		labels.Add(key, val)
 	}
 
-	if diff := cmp.Diff(field, zap.Object(labelsKey, labels),
+	if diff := cmp.Diff(field, zap.Object(LabelsKey, labels),
 		cmpopts.IgnoreUnexported(labelMap{}),
 	); diff != "" {
 		t.Fatalf("(-want, +got)\n%s\n", diff)

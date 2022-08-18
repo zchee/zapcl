@@ -11,15 +11,17 @@ import (
 )
 
 const (
-	labelsKey = "logging.googleapis.com/labels"
+	// LabelsKeys is the value of this field must be a structured record. For more information.
+	//
+	// labels field:
+	// - https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#FIELDS.labels
+	LabelsKey = "logging.googleapis.com/labels"
 )
 
 // Label adds the Cloud Logging "labels" field from key and val.
 //
 // Cloud Logging truncates label keys that exceed 512 B and label values that exceed 64 KB upon their associated log entry being written.
 // The truncation is indicated by an ellipsis at the end of the character string.
-//
-//	https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#FIELDS.labels
 func Label(key, val string) zapcore.Field {
 	return zap.String("labels."+key, val)
 }
@@ -63,5 +65,5 @@ func Labels(keyvals ...string) zapcore.Field {
 		fields.Add(key, val)
 	}
 
-	return zap.Object(labelsKey, fields)
+	return zap.Object(LabelsKey, fields)
 }

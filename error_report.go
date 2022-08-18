@@ -66,7 +66,7 @@ func newReportContext(pc uintptr, file string, line int, ok bool) *reportContext
 
 // ErrorReport adds the Cloud Logging "context" field for getting the log line reported as error.
 //
-//	https://cloud.google.com/error-reporting/docs/formatting-error-messages
+// https://cloud.google.com/error-reporting/docs/formatting-error-messages
 func ErrorReport(pc uintptr, file string, line int, ok bool) zap.Field {
 	return zap.Object(contextKey, newReportContext(pc, file, line, ok))
 }

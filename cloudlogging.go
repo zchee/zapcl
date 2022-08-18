@@ -169,8 +169,7 @@ func (c *core) Sync() error {
 // - sync /dev/stdout: inappropriate ioctl for device
 //
 // This code was borrowed from:
-//
-//	https://github.com/open-telemetry/opentelemetry-collector/blob/v0.46.0/exporter/loggingexporter/known_sync_error.go#L24-L39.
+// - https://github.com/open-telemetry/opentelemetry-collector/blob/v0.46.0/exporter/loggingexporter/known_sync_error.go#L24-L39.
 func knownSyncError(err error) bool {
 	switch {
 	case errors.Is(err, unix.EINVAL),
