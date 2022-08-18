@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sort"
 	"time"
 
 	json "github.com/goccy/go-json"
@@ -74,9 +75,10 @@ func (nopWriteSyncer) Sync() error { return nil }
 type Core struct {
 	zapcore.LevelEnabler
 
-	enc    zapcore.Encoder
-	ws     zapcore.WriteSyncer
-	fields []zapcore.Field
+	enc        zapcore.Encoder
+	ws         zapcore.WriteSyncer
+	fields     []zapcore.Field
+	initFields map[string]interface{}
 }
 
 var _ zapcore.Core = (*Core)(nil)
@@ -200,6 +202,13 @@ func (f optionFunc) apply(c *Core) {
 	f(c)
 }
 
+// WithInitialFields configures the zap InitialFields.
+func WithInitialFields(fields map[string]interface{}) Option {
+	return optionFunc(func(c *Core) {
+		c.initFields = fields
+	})
+}
+
 // WithWriteSyncer configures the zapcore.WriteSyncer.
 func WithWriteSyncer(ws zapcore.WriteSyncer) Option {
 	return optionFunc(func(c *Core) {
@@ -221,6 +230,21 @@ func newCore(ws zapcore.WriteSyncer, enab zapcore.LevelEnabler, opts ...Option) 
 	core.fields = []zapcore.Field{
 		zap.String(res.Type, res.LogID),
 		zap.Inline(res),
+	}
+
+	// handling initFields option
+	if len(core.initFields) > 0 {
+		fs := make([]zapcore.Field, 0, len(core.initFields))
+		keys := make([]string, 0, len(core.initFields))
+		for k := range core.initFields {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+
+		for _, k := range keys {
+			fs = append(fs, zap.Any(k, core.initFields[k]))
+		}
+		core.fields = append(core.fields, fs...)
 	}
 
 	return core
