@@ -5,7 +5,7 @@ package detector
 
 // List of App Engine Standard env vars:
 //
-//	https://cloud.google.com/appengine/docs/standard/go/runtime#environment_variables
+// https://cloud.google.com/appengine/docs/standard/go/runtime#environment_variables
 const (
 	// EnvAppEngineEnv is the App Engine environment. Set to "standard".
 	EnvAppEngineEnv = "GAE_ENV"
@@ -19,7 +19,7 @@ func (d *Detector) isAppEngineStandard() bool {
 
 // List of App Engine Flex env vars:
 //
-//	https://cloud.google.com/appengine/docs/flexible/python/runtime#environment_variables
+// https://cloud.google.com/appengine/docs/flexible/python/runtime#environment_variables
 const (
 	// EnvAppEngineFlexService is the service name specified in your application's app.yaml file, or if no service name is specified, it is set to default.
 	EnvAppEngineFlexService = "GAE_SERVICE"

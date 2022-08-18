@@ -5,7 +5,7 @@ package detector
 
 // List of Cloud Run env vars:
 //
-//	https://cloud.google.com/run/docs/container-contract#env-vars
+// https://cloud.google.com/run/docs/container-contract#env-vars
 const (
 	// EnvCloudRunService is the name of the Cloud Run service being run.
 	EnvCloudRunService = "K_SERVICE"
@@ -28,7 +28,7 @@ func (d *Detector) isCloudRun() bool {
 
 // List of Cloud Run jobs env vars:
 //
-//	https://cloud.google.com/run/docs/container-contract#jobs-env-vars
+// https://cloud.google.com/run/docs/container-contract#jobs-env-vars
 const (
 	// EnvCloudRunJobsService is the name of the Cloud Run job being run.
 	EnvCloudRunJobsService = "CLOUD_RUN_JOB"
@@ -57,7 +57,7 @@ func (d *Detector) isCloudRunJobs() bool {
 
 // List of Cloud Functions newer runtimes env vars:
 //
-//	https://cloud.google.com/functions/docs/configuring/env-var#newer_runtimes
+// https://cloud.google.com/functions/docs/configuring/env-var#newer_runtimes
 const (
 	// EnvCloudFunctionsTarget is the function to be executed.
 	EnvCloudFunctionsTarget = "FUNCTION_TARGET"
