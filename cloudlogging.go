@@ -66,7 +66,8 @@ type nopWriteSyncer struct {
 
 func (nopWriteSyncer) Sync() error { return nil }
 
-type core struct {
+// Core represents a zapcor.Core that is Cloud Logging integration for Zap logger.
+type Core struct {
 	zapcore.LevelEnabler
 
 	enc    zapcore.Encoder
@@ -74,10 +75,10 @@ type core struct {
 	fields []zapcore.Field
 }
 
-var _ zapcore.Core = (*core)(nil)
+var _ zapcore.Core = (*Core)(nil)
 
-func (c *core) clone() *core {
-	newCore := &core{
+func (c *Core) clone() *Core {
+	newCore := &Core{
 		fields: make([]zapcore.Field, len(c.fields)),
 		enc:    c.enc.Clone(),
 		ws:     c.ws,
@@ -96,7 +97,7 @@ func addFields(enc zapcore.ObjectEncoder, fields []zapcore.Field) {
 // With adds structured context to the Core.
 //
 // With implements zapcore.Core.With.
-func (c *core) With(fields []zapcore.Field) zapcore.Core {
+func (c *Core) With(fields []zapcore.Field) zapcore.Core {
 	clone := c.clone()
 	addFields(clone.enc, fields)
 
@@ -109,7 +110,7 @@ func (c *core) With(fields []zapcore.Field) zapcore.Core {
 // the result.
 //
 // Check implements zapcore.Core.Check.
-func (c *core) Check(entry zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
+func (c *Core) Check(entry zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
 	if c.Enabled(entry.Level) {
 		return ce.AddCore(entry, c)
 	}
@@ -121,7 +122,7 @@ func (c *core) Check(entry zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.Che
 // writes them to their destination.
 //
 // Write implemenns zapcore.Core.Write.
-func (c *core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
+func (c *Core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 	for _, field := range c.fields {
 		field.AddTo(c.enc)
 	}
@@ -146,10 +147,10 @@ func (c *core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 	return nil
 }
 
-// Sync flushes buffered logs (if any).
+// Sync flushes buffered logs if any.
 //
 // Sync implemenns zapcore.Core.Sync.
-func (c *core) Sync() error {
+func (c *Core) Sync() error {
 	if err := c.ws.Sync(); err != nil {
 		if !knownSyncError(err) {
 			return fmt.Errorf("faild to sync logger: %w", err)
@@ -185,25 +186,25 @@ func knownSyncError(err error) bool {
 
 // Option configures a core.
 type Option interface {
-	apply(*core)
+	apply(*Core)
 }
 
 // optionFunc wraps a func so it satisfies the Option interface.
-type optionFunc func(*core)
+type optionFunc func(*Core)
 
-func (f optionFunc) apply(c *core) {
+func (f optionFunc) apply(c *Core) {
 	f(c)
 }
 
 // WithWriteSyncer configures the zapcore.WriteSyncer.
 func WithWriteSyncer(ws zapcore.WriteSyncer) Option {
-	return optionFunc(func(c *core) {
+	return optionFunc(func(c *Core) {
 		c.ws = ws
 	})
 }
 
-func newCore(ws zapcore.WriteSyncer, enab zapcore.LevelEnabler, opts ...Option) *core {
-	core := &core{
+func newCore(ws zapcore.WriteSyncer, enab zapcore.LevelEnabler, opts ...Option) *Core {
+	core := &Core{
 		LevelEnabler: enab,
 		enc:          zapcore.NewJSONEncoder(encoderConfig()),
 		ws:           ws,
