@@ -15,8 +15,7 @@ const (
 // ServiceContext adds the service information adding the log line.
 // It is a required field if an error needs to be reported.
 //
-// https://cloud.google.com/error-reporting/reference/rest/v1beta1/ServiceContext
-// https://cloud.google.com/error-reporting/docs/formatting-error-messages
+// ServiceContext: https://cloud.google.com/error-reporting/reference/rest/v1beta1/ServiceContext
 func ServiceContext(name string) zap.Field {
 	return zap.Object(serviceContextKey, zapcore.ObjectMarshalerFunc(func(enc zapcore.ObjectEncoder) error {
 		enc.AddString("service", name)

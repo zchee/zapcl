@@ -10,15 +10,13 @@ import (
 	"unsafe"
 )
 
-// Token from:
-//
-//	https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L799-L802
+// Token from https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L799-L802
 type funcInfo struct {
 	Func *runtime.Func  // *_func
 	_    unsafe.Pointer // datap *moduledata
 }
 
-// https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L828
+// Token from https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L828
 //
 //go:linkname findfunc runtime.findfunc
 //go:noescape
@@ -33,9 +31,7 @@ func FuncForPC(pc uintptr) *runtime.Func {
 
 // frame is the information returned by Frames for each call frame.
 //
-// Token from:
-//
-//	https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L26-L61
+// Token from: https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L26-L61
 type frame struct {
 	// PC is the program counter for the location in this frame.
 	// For a frame that calls another frame, this will be the
@@ -76,9 +72,7 @@ type frame struct {
 // frames may be used to get function/file/line information for a
 // slice of PC values returned by Callers.
 //
-// Token from:
-//
-//	https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L16-L23
+// Token from: https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L16-L23
 type frames struct {
 	// callers is a slice of PCs that have not yet been expanded to frames.
 	callers []uintptr
@@ -94,16 +88,14 @@ type frames struct {
 // prepares to return function/file/line information.
 // Do not change the slice until you are done with the Frames.
 //
-// Token from:
-//
-//	https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L66
+// Token from: https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L66
 func CallersFrames(callers []uintptr) *frames {
 	f := &frames{callers: callers}
 	f.frames = f.frameStore[:0]
 	return f
 }
 
-// https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L81
+// Token from: https://github.com/golang/go/blob/go1.19/src/runtime/symtab.go#L81
 //
 //go:linkname next runtime.(*Frames).Next
 //go:noescape
@@ -126,9 +118,7 @@ func (ci *frames) Next() (frame frame, more bool) {
 
 // Caller is a drop-in replacement for runtime.Caller.
 //
-// Token from:
-//
-//	https://github.com/golang/go/blob/go1.19/src/runtime/extern.go#L217-L225
+// Token from: https://github.com/golang/go/blob/go1.19/src/runtime/extern.go#L217-L225
 func Caller(skip int) (pc uintptr, file string, line int, ok bool) {
 	rpc := make([]uintptr, 1)
 	n := callers(skip+1, rpc)
@@ -143,9 +133,7 @@ func Caller(skip int) (pc uintptr, file string, line int, ok bool) {
 // Callers is a drop-in replacement for runtime.Callers that uses frame
 // pointers for fast and simple stack unwinding.
 //
-// Based by:
-//
-//	https://github.com/golang/go/blob/go1.19/src/runtime/extern.go#L240-L248
+// Based by: https://github.com/golang/go/blob/go1.19/src/runtime/extern.go#L240-L248
 //
 //go:noinline
 func Callers(skip int, pcs []uintptr) int {

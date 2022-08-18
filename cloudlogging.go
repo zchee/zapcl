@@ -58,6 +58,8 @@ func levelEncoder(lvl zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
 // string with nanoseconds precision.
 //
 // The Cloud Logging timestamp field spec is RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
+//
+// https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#FIELDS.timestamp
 func rfc3339NanoTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format(time.RFC3339Nano))
 }
