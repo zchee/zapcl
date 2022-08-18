@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	cloud.google.com/go/compute v1.8.0
-	github.com/goccy/go-json v0.9.10
+	github.com/goccy/go-json v0.9.11
 	github.com/google/go-cmp v0.5.8
 	go.opentelemetry.io/otel/trace v1.9.0
 	go.uber.org/zap v1.22.0
