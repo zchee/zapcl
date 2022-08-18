@@ -34,6 +34,9 @@ coverage:
         branches:
           - main
 
+ignore:
+  - "caller.go"
+
 comment:
   behavior: default
   require_changes: false
