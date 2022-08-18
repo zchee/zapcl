@@ -56,6 +56,8 @@ func levelEncoder(lvl zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
 
 // rfc3339NanoTimeEncoder serializes a time.Time to an RFC3339Nano-formatted
 // string with nanoseconds precision.
+//
+// The Cloud Logging timestamp field spec is RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
 func rfc3339NanoTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format(time.RFC3339Nano))
 }
