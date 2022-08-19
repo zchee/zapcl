@@ -1,7 +1,7 @@
 // Copyright 2022 The zap-cloudlogging Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Package zapcloudlogging provides the Cloud Logging intergration for Zap.
+// Package zapcloudlogging provides the Cloud Logging integration for Zap.
 package zapcloudlogging
 
 import (
