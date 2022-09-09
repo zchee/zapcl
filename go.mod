@@ -1,4 +1,4 @@
-module github.com/zchee/zap-cloudlogging
+module github.com/zchee/zapcl
 
 go 1.19
 

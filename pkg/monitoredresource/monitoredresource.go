@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	mrpb "google.golang.org/genproto/googleapis/api/monitoredres"
 
-	"github.com/zchee/zap-cloudlogging/pkg/detector"
+	"github.com/zchee/zapcl/pkg/detector"
 )
 
 type Type string

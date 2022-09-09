@@ -3,7 +3,7 @@
 
 //go:build go1.13
 
-package zapcloudlogging
+package zapcl
 
 import (
 	"runtime"

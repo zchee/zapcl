@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 // Package zapcloudlogging provides the Cloud Logging integration for Zap.
-package zapcloudlogging
+package zapcl
 
 import (
 	"errors"
@@ -17,7 +17,7 @@ import (
 	"golang.org/x/sys/unix"
 	logtypepb "google.golang.org/genproto/googleapis/logging/type"
 
-	"github.com/zchee/zap-cloudlogging/pkg/monitoredresource"
+	"github.com/zchee/zapcl/pkg/monitoredresource"
 )
 
 var levelToSeverity = map[zapcore.Level]logtypepb.LogSeverity{

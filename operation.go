@@ -1,7 +1,7 @@
 // Copyright 2022 The zap-cloudlogging Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
-package zapcloudlogging
+package zapcl
 
 import (
 	"go.uber.org/zap"
