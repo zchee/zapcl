@@ -30,7 +30,8 @@ var levelToSeverity = map[zapcore.Level]logtypepb.LogSeverity{
 	zapcore.FatalLevel:  logtypepb.LogSeverity_EMERGENCY,
 }
 
-func encoderConfig() zapcore.EncoderConfig {
+// NewEncoderConfig returns the logging configuration.
+func NewEncoderConfig() zapcore.EncoderConfig {
 	return zapcore.EncoderConfig{
 		TimeKey:        "eventTime",
 		LevelKey:       "severity",
@@ -219,7 +220,7 @@ func WithWriteSyncer(ws zapcore.WriteSyncer) Option {
 func newCore(ws zapcore.WriteSyncer, enab zapcore.LevelEnabler, opts ...Option) *Core {
 	core := &Core{
 		LevelEnabler: enab,
-		enc:          zapcore.NewJSONEncoder(encoderConfig()),
+		enc:          zapcore.NewJSONEncoder(NewEncoderConfig()),
 		ws:           ws,
 	}
 	for _, opt := range opts {
