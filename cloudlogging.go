@@ -11,7 +11,7 @@ import (
 	"sort"
 	"time"
 
-	json "github.com/goccy/go-json"
+	"github.com/bytedance/sonic/encoder"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/sys/unix"
@@ -44,7 +44,7 @@ func encoderConfig() zapcore.EncoderConfig {
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 		NewReflectedEncoder: func(w io.Writer) zapcore.ReflectedEncoder {
-			enc := json.NewEncoder(w)
+			enc := encoder.NewStreamEncoder(w)
 			enc.SetEscapeHTML(false)
 			return enc
 		},
