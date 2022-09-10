@@ -1,5 +1,0 @@
-cloud.google.com/go v0.102.1 h1:vpK6iQWv/2uUeFJth4/cBHsQAGjn1iIE6AAlxipRaA0=
-github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
-github.com/zchee/sonic v0.0.0-20220909224223-d9a23eeedc75 h1:tSI7Xp8dxr3Djk0xzloft5uwEdPyGZyjJpCaU4A0PKU=
-github.com/zchee/sonic v0.0.0-20220909224223-d9a23eeedc75/go.mod h1:V973WhNhGmvHxW6nQmsHEfHaoU9F3zTF+93rH03hcUQ=
-go.uber.org/goleak v1.1.11/go.mod h1:cwTWslyiVhfpKIDGSZEM2HlOvcqm+tG4zioyIeLoqMQ=
