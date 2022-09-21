@@ -48,8 +48,6 @@ func NewDetector(attrs ResourceAttributesFetcher) *Detector {
 
 // CloudPlatform returns the platform on which this program is running.
 func (d *Detector) CloudPlatform() Platform {
-	d.attrs = fetcher
-
 	switch {
 	case d.isGCE(): // TODO(zchee): not implemented yet.
 		return UnknownPlatform // GCE
