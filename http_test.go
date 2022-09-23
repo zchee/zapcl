@@ -12,9 +12,21 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"go.uber.org/zap"
 	logtypepb "google.golang.org/genproto/googleapis/logging/type"
 	"google.golang.org/protobuf/testing/protocmp"
 )
+
+func TestHTTP(t *testing.T) {
+	t.Parallel()
+
+	req := &HTTPPayload{}
+	field := HTTP(req)
+
+	if diff := cmp.Diff(field, zap.Object("httpRequest", req)); diff != "" {
+		t.Fatalf("(-want, +got)\n%s\n", diff)
+	}
+}
 
 func TestHTTPRequestField(t *testing.T) {
 	t.Parallel()
