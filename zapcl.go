@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"sort"
-	"time"
 
 	json "github.com/goccy/go-json"
 	"go.uber.org/zap"
@@ -33,7 +32,7 @@ var levelToSeverity = map[zapcore.Level]logtypepb.LogSeverity{
 // NewEncoderConfig returns the logging configuration.
 func NewEncoderConfig() zapcore.EncoderConfig {
 	return zapcore.EncoderConfig{
-		TimeKey:        "eventTime",
+		TimeKey:        "time", // https://cloud.google.com/logging/docs/agent/logging/configuration#timestamp-processing
 		LevelKey:       "severity",
 		NameKey:        "logger",
 		CallerKey:      "caller",
@@ -41,7 +40,7 @@ func NewEncoderConfig() zapcore.EncoderConfig {
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    levelEncoder,
-		EncodeTime:     rfc3339NanoTimeEncoder,
+		EncodeTime:     zapcore.RFC3339TimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 		NewReflectedEncoder: func(w io.Writer) zapcore.ReflectedEncoder {
@@ -54,16 +53,6 @@ func NewEncoderConfig() zapcore.EncoderConfig {
 
 func levelEncoder(lvl zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(levelToSeverity[lvl].Enum().String())
-}
-
-// rfc3339NanoTimeEncoder serializes a time.Time to an RFC3339Nano-formatted
-// string with nanoseconds precision.
-//
-// The Cloud Logging timestamp field spec is RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
-//
-// https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#FIELDS.timestamp
-func rfc3339NanoTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString(t.Format(time.RFC3339Nano))
 }
 
 type nopWriteSyncer struct {
