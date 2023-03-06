@@ -5,7 +5,6 @@ package zapcl
 
 import (
 	"context"
-	"fmt"
 
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -37,6 +36,11 @@ const (
 	TraceSampledKey = "logging.googleapis.com/trace_sampled"
 )
 
+const (
+	traceKeyPrefix = "projects/"
+	traceKeySuffix = "/traces/"
+)
+
 // TraceField adds the correct Cloud Logging "trace", "span", "trace_sampled" fields from ctx.
 //
 // https://cloud.google.com/logging/docs/agent/logging/configuration#special-fields
@@ -48,7 +52,7 @@ func TraceField(ctx context.Context) (fields []zapcore.Field, record bool) {
 	}
 
 	return []zapcore.Field{
-		zap.String(TraceKey, fmt.Sprintf("projects/%s/traces/%s", monitoredresource.ResourceDetector.ProjectID(), span.SpanContext().TraceID().String())),
+		zap.String(TraceKey, traceKeyPrefix+monitoredresource.ResourceDetector.ProjectID()+traceKeySuffix+span.SpanContext().TraceID().String()),
 		zap.String(SpanKey, span.SpanContext().SpanID().String()),
 		zap.Bool(TraceSampledKey, span.SpanContext().IsSampled()),
 	}, true
