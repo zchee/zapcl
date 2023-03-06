@@ -9,8 +9,9 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/zchee/zapcl/pkg/detector"
 	mrpb "google.golang.org/genproto/googleapis/api/monitoredres"
+
+	"github.com/zchee/zapcl/pkg/detector"
 )
 
 const (
