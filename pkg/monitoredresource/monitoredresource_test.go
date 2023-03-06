@@ -77,14 +77,14 @@ func (g *fakeResourceGetter) ReadAll(path string) string {
 
 // setupDetectResource resets sync.Once on detectResource and enforces mocked resource attribute getter
 func setupDetectedResource(envVars, metaVars, fsPaths map[string]string) {
-	resourceDetector.once = new(sync.Once)
+	ResourceDetector.once = new(sync.Once)
 	fake := &fakeResourceGetter{
 		envVars:  envVars,
 		metaVars: metaVars,
 		fsPaths:  fsPaths,
 	}
-	resourceDetector.attrs = fake
-	resourceDetector.pb = nil
+	ResourceDetector.attrs = fake
+	ResourceDetector.pb = nil
 }
 
 func TestResourceDetection(t *testing.T) {

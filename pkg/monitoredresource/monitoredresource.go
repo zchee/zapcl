@@ -1482,17 +1482,22 @@ func (mr *MonitoredResource) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return nil
 }
 
-type resource struct {
+type Resource struct {
 	pb    *mrpb.MonitoredResource
 	attrs detector.ResourceAttributesFetcher
 	once  *sync.Once
 }
 
-func (r *resource) metadataProjectID() string {
+var ResourceDetector = &Resource{
+	attrs: detector.ResourceAttributes(),
+	once:  new(sync.Once),
+}
+
+func (r *Resource) ProjectID() string {
 	return r.attrs.Metadata("project/project-id")
 }
 
-func (r *resource) metadataZone() string {
+func (r *Resource) Zone() string {
 	zone := r.attrs.Metadata("instance/zone")
 	if zone != "" {
 		return zone[strings.LastIndex(zone, "/")+1:]
@@ -1501,7 +1506,7 @@ func (r *resource) metadataZone() string {
 	return ""
 }
 
-func (r *resource) metadataRegion() string {
+func (r *Resource) Region() string {
 	region := r.attrs.Metadata("instance/region")
 	if region != "" {
 		return region[strings.LastIndex(region, "/")+1:]
@@ -1511,20 +1516,15 @@ func (r *resource) metadataRegion() string {
 }
 
 // isMetadataActive queries valid response on "/computeMetadata/v1/" URL.
-func (r *resource) isMetadataActive() bool {
+func (r *Resource) isMetadataActive() bool {
 	data := r.attrs.Metadata("")
 
 	return data != ""
 }
 
-var resourceDetector = &resource{
-	attrs: detector.ResourceAttributes(),
-	once:  new(sync.Once),
-}
-
 // Detect returns new platform specific MonitoredResource.
 func Detect() *MonitoredResource {
-	d := detector.NewDetector(resourceDetector.attrs)
+	d := detector.NewDetector(ResourceDetector.attrs)
 
 	switch d.CloudPlatform() {
 	case detector.CloudRun:
@@ -1541,15 +1541,15 @@ func Detect() *MonitoredResource {
 }
 
 func detectCloudRunResource() *MonitoredResource {
-	projectID := resourceDetector.metadataProjectID()
+	projectID := ResourceDetector.ProjectID()
 	if projectID == "" {
 		return nil
 	}
 
-	region := resourceDetector.metadataRegion()
-	config := resourceDetector.attrs.EnvVar(detector.EnvCloudRunConfig)
-	service := resourceDetector.attrs.EnvVar(detector.EnvCloudRunService)
-	revision := resourceDetector.attrs.EnvVar(detector.EnvCloudRunRevision)
+	region := ResourceDetector.Region()
+	config := ResourceDetector.attrs.EnvVar(detector.EnvCloudRunConfig)
+	service := ResourceDetector.attrs.EnvVar(detector.EnvCloudRunService)
+	revision := ResourceDetector.attrs.EnvVar(detector.EnvCloudRunRevision)
 
 	return &MonitoredResource{
 		LogID: "run.googleapis.com%2Fstdout",
@@ -1567,13 +1567,13 @@ func detectCloudRunResource() *MonitoredResource {
 }
 
 func detectCloudRunJobsResource() *MonitoredResource {
-	projectID := resourceDetector.metadataProjectID()
+	projectID := ResourceDetector.ProjectID()
 	if projectID == "" {
 		return nil
 	}
 
-	region := resourceDetector.metadataRegion()
-	jobname := resourceDetector.attrs.EnvVar(detector.EnvCloudRunJobsService)
+	region := ResourceDetector.Region()
+	jobname := ResourceDetector.attrs.EnvVar(detector.EnvCloudRunJobsService)
 
 	return &MonitoredResource{
 		LogID: "run.googleapis.com%2Fstdout",
@@ -1589,13 +1589,13 @@ func detectCloudRunJobsResource() *MonitoredResource {
 }
 
 func detectCloudFunctionsResource() *MonitoredResource {
-	projectID := resourceDetector.metadataProjectID()
+	projectID := ResourceDetector.ProjectID()
 	if projectID == "" {
 		return nil
 	}
 
-	funcname := resourceDetector.attrs.EnvVar(detector.EnvCloudFunctionsKService)
-	revision := resourceDetector.attrs.EnvVar(detector.EnvCloudRunRevision)
+	funcname := ResourceDetector.attrs.EnvVar(detector.EnvCloudFunctionsKService)
+	revision := ResourceDetector.attrs.EnvVar(detector.EnvCloudRunRevision)
 
 	return &MonitoredResource{
 		LogID: "cloudfunctions.googleapis.com%2Fcloud-functions",
