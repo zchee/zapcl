@@ -10,12 +10,12 @@ import (
 	"io"
 	"sort"
 
-	json "github.com/goccy/go-json"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/sys/unix"
 	logtypepb "google.golang.org/genproto/googleapis/logging/type"
 
+	"github.com/zchee/zapcl/internal/json"
 	"github.com/zchee/zapcl/pkg/monitoredresource"
 )
 
