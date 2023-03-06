@@ -40,12 +40,16 @@ const (
 // TraceField adds the correct Cloud Logging "trace", "span", "trace_sampled" fields from ctx.
 //
 // https://cloud.google.com/logging/docs/agent/logging/configuration#special-fields
-func TraceField(ctx context.Context) []zapcore.Field {
-	spanCtx := trace.SpanContextFromContext(ctx)
+func TraceField(ctx context.Context) (fields []zapcore.Field, record bool) {
+	span := trace.SpanFromContext(ctx)
+
+	if record = span.IsRecording(); !record {
+		return nil, record
+	}
 
 	return []zapcore.Field{
-		zap.String(TraceKey, fmt.Sprintf("projects/%s/traces/%s", monitoredresource.ResourceDetector.ProjectID(), spanCtx.TraceID().String())),
-		zap.String(SpanKey, spanCtx.SpanID().String()),
-		zap.Bool(TraceSampledKey, spanCtx.IsSampled()),
-	}
+		zap.String(TraceKey, fmt.Sprintf("projects/%s/traces/%s", monitoredresource.ResourceDetector.ProjectID(), span.SpanContext().TraceID().String())),
+		zap.String(SpanKey, span.SpanContext().SpanID().String()),
+		zap.Bool(TraceSampledKey, span.SpanContext().IsSampled()),
+	}, true
 }
