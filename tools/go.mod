@@ -6,7 +6,7 @@ replace mvdan.cc/gofumpt => github.com/mvdan/gofumpt v0.4.1-0.20230125043819-8b5
 
 require (
 	github.com/golangci/golangci-lint v1.51.2
-	github.com/zchee/goimportz v1.1.0
+	github.com/incu6us/goimports-reviser/v3 v3.3.1
 	gotest.tools/gotestsum v1.9.0
 	mvdan.cc/gofumpt v0.4.0
 )
