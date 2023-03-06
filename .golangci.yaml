@@ -182,7 +182,7 @@ linters-settings:
   gofumpt:
     extra-rules: true
   goimports:
-    local-prefixes: github.com/zchee/zap-cloudlogging
+    local-prefixes: github.com/zchee/zapcl
   govet:
     enable-all: true
     check-shadowing: true

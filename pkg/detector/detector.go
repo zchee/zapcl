@@ -1,4 +1,4 @@
-// Copyright 2022 The zap-cloudlogging Authors
+// Copyright 2022 The zapcl Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
 package detector
