@@ -7,6 +7,8 @@ replace (
 	go.opentelemetry.io/otel/trace => go.opentelemetry.io/otel/trace v1.13.0
 )
 
+replace github.com/bytedance/sonic => github.com/zchee/sonic v0.0.0-20230306223227-76225627a885 // for support go1.21
+
 require (
 	cloud.google.com/go/compute/metadata v0.2.3
 	github.com/bytedance/sonic v1.8.3

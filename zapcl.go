@@ -19,6 +19,15 @@ import (
 	"github.com/zchee/zapcl/pkg/monitoredresource"
 )
 
+// ReflectedEncoder serializes log fields that can't be serialized with Zap's JSON encoder.
+//
+// These have the ReflectType field type.
+func ReflectedEncoder(w io.Writer) zapcore.ReflectedEncoder {
+	enc := json.NewEncoder(w)
+	enc.SetEscapeHTML(false)
+	return enc
+}
+
 var levelToSeverity = map[zapcore.Level]logtypepb.LogSeverity{
 	zapcore.DebugLevel:  logtypepb.LogSeverity_DEBUG,
 	zapcore.InfoLevel:   logtypepb.LogSeverity_INFO,
@@ -32,22 +41,18 @@ var levelToSeverity = map[zapcore.Level]logtypepb.LogSeverity{
 // NewEncoderConfig returns the logging configuration.
 func NewEncoderConfig() zapcore.EncoderConfig {
 	return zapcore.EncoderConfig{
-		TimeKey:        "time", // https://cloud.google.com/logging/docs/agent/logging/configuration#timestamp-processing
-		LevelKey:       "severity",
-		NameKey:        "logger",
-		CallerKey:      "caller",
-		MessageKey:     "message",
-		StacktraceKey:  "stacktrace",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    levelEncoder,
-		EncodeTime:     zapcore.RFC3339TimeEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
-		NewReflectedEncoder: func(w io.Writer) zapcore.ReflectedEncoder {
-			enc := json.NewEncoder(w)
-			enc.SetEscapeHTML(false)
-			return enc
-		},
+		TimeKey:             "time", // https://cloud.google.com/logging/docs/agent/logging/configuration#timestamp-processing
+		LevelKey:            "severity",
+		NameKey:             "logger",
+		CallerKey:           "caller",
+		MessageKey:          "message",
+		StacktraceKey:       "stacktrace",
+		LineEnding:          zapcore.DefaultLineEnding,
+		EncodeLevel:         levelEncoder,
+		EncodeTime:          zapcore.RFC3339TimeEncoder,
+		EncodeDuration:      zapcore.SecondsDurationEncoder,
+		EncodeCaller:        zapcore.ShortCallerEncoder,
+		NewReflectedEncoder: ReflectedEncoder,
 	}
 }
 

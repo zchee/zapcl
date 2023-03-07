@@ -22,12 +22,12 @@ const (
 	SourceLocationKey = "logging.googleapis.com/sourceLocation"
 )
 
-type sourceLocation struct {
+type EntrySourceLocation struct {
 	*logpb.LogEntrySourceLocation
 }
 
 // MarshalLogObject implements zapcore.ObjectMarshaller.MarshalLogObject.
-func (l sourceLocation) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+func (l *EntrySourceLocation) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("file", l.GetFile())
 	enc.AddInt64("line", l.GetLine())
 	enc.AddString("function", l.GetFunction())
@@ -35,7 +35,7 @@ func (l sourceLocation) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	return nil
 }
 
-func newSource(pc uintptr, file string, line int, ok bool) *sourceLocation {
+func newSource(pc uintptr, file string, line int, ok bool) *EntrySourceLocation {
 	if !ok {
 		return nil
 	}
@@ -45,7 +45,7 @@ func newSource(pc uintptr, file string, line int, ok bool) *sourceLocation {
 		function = strings.TrimPrefix(fn.Name(), filepath.Join(build.Default.GOPATH, "src")+"/")
 	}
 
-	loc := &sourceLocation{
+	loc := &EntrySourceLocation{
 		LogEntrySourceLocation: &logpb.LogEntrySourceLocation{
 			File:     file,
 			Line:     int64(line),

@@ -11,7 +11,7 @@ import (
 func TestSourceLocation(t *testing.T) {
 	t.Parallel()
 
-	got := SourceLocation(Caller(0)).Interface.(*sourceLocation)
+	got := EntrySourceLocation(Caller(0)).Interface.(*sourceLocation)
 
 	if gotFile, wantFile := got.File, "zapcl/source_location_test.go"; !strings.Contains(gotFile, wantFile) {
 		t.Errorf("except contains got %s in %s", gotFile, wantFile)
