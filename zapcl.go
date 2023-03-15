@@ -40,7 +40,7 @@ func NewEncoderConfig() zapcore.EncoderConfig {
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    levelEncoder,
-		EncodeTime:     zapcore.RFC3339TimeEncoder,
+		EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 		NewReflectedEncoder: func(w io.Writer) zapcore.ReflectedEncoder {
