@@ -7,7 +7,7 @@ parsers:
 
 coverage:
   precision: 1
-  range: "70...100"
+  range: "60...90"  # range are 60-90, see https://testing.googleblog.com/2020/08/code-coverage-best-practices.html
   round: down
 
   status:
@@ -22,15 +22,15 @@ coverage:
 
     patch:
       default:
-        target: auto
-        threshold: 10.0
+        target: 50%
+        threshold: auto
         only_pulls: true
         if_not_found: failure
 
     changes:
       default:
         if_not_found: success
-        only_pulls: false
+        only_pulls: true
         branches:
           - main
 
@@ -38,9 +38,11 @@ ignore:
   - "caller.go"
 
 comment:
+  layout: "newheader, diff, flags, files"
   behavior: default
   require_changes: false
   show_carryforward_flags: true
+  hide_comment_details: false
 
 github_checks:
   annotations: true
