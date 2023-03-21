@@ -57,8 +57,8 @@ type nopWriteSyncer struct {
 
 func (nopWriteSyncer) Sync() error { return nil }
 
-// Core represents a zapcor.Core that is Cloud Logging integration for Zap logger.
-type Core struct {
+// core represents a zapcor.core that is Cloud Logging integration for Zap logger.
+type core struct {
 	zapcore.LevelEnabler
 
 	enc        zapcore.Encoder
@@ -67,143 +67,10 @@ type Core struct {
 	fields     []zapcore.Field
 }
 
-var _ zapcore.Core = (*Core)(nil)
+var _ zapcore.Core = (*core)(nil)
 
-func (c *Core) clone() *Core {
-	newCore := &Core{
-		fields: make([]zapcore.Field, len(c.fields)),
-		enc:    c.enc.Clone(),
-		ws:     c.ws,
-	}
-	copy(newCore.fields, c.fields)
-
-	return newCore
-}
-
-func addFields(enc zapcore.ObjectEncoder, fields []zapcore.Field) {
-	for i := range fields {
-		fields[i].AddTo(enc)
-	}
-}
-
-// With adds structured context to the Core.
-//
-// With implements zapcore.Core.With.
-func (c *Core) With(fields []zapcore.Field) zapcore.Core {
-	clone := c.clone()
-	addFields(clone.enc, fields)
-
-	return clone
-}
-
-// Check determines whether the supplied Entry should be logged (using the
-// embedded LevelEnabler and possibly some extra logic). If the entry
-// should be logged, the Core adds itself to the CheckedEntry and returns
-// the result.
-//
-// Check implements zapcore.Core.Check.
-func (c *Core) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
-	if c.Enabled(ent.Level) {
-		return ce.AddCore(ent, c)
-	}
-
-	return ce
-}
-
-// Write serializes the Entry and any Fields supplied at the log site and
-// writes them to their destination.
-//
-// Write implemenns zapcore.Core.Write.
-func (c *Core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
-	for _, field := range c.fields {
-		field.AddTo(c.enc)
-	}
-
-	buf, err := c.enc.EncodeEntry(ent, fields)
-	if err != nil {
-		return fmt.Errorf("could not encode entry: %w", err)
-	}
-
-	_, err = c.ws.Write(buf.Bytes())
-	buf.Free()
-	if err != nil {
-		return fmt.Errorf("could not write buf: %w", err)
-	}
-
-	if ent.Level > zapcore.ErrorLevel {
-		// Since we may be crashing the program, sync the output. Ignore Sync
-		// errors, pending a clean solution to issue #370.
-		c.Sync() //nolint:errcheck
-	}
-
-	return nil
-}
-
-// Sync flushes buffered logs if any.
-//
-// Sync implemenns zapcore.Core.Sync.
-func (c *Core) Sync() error {
-	if err := c.ws.Sync(); err != nil {
-		if !knownSyncError(err) {
-			return fmt.Errorf("faild to sync logger: %w", err)
-		}
-	}
-
-	return nil
-}
-
-// knownSyncError reports whether the given error is one of the known
-// non-actionable errors returned by Sync on Linux and macOS.
-//
-// Linux:
-// - sync /dev/stdout: invalid argument
-//
-// macOS:
-// - sync /dev/stdout: inappropriate ioctl for device
-//
-// This code was borrowed from:
-// - https://github.com/open-telemetry/opentelemetry-collector/blob/v0.46.0/exporter/loggingexporter/known_sync_error.go#L24-L39.
-func knownSyncError(err error) bool {
-	switch {
-	case errors.Is(err, unix.EINVAL),
-		errors.Is(err, unix.ENOTSUP),
-		errors.Is(err, unix.ENOTTY),
-		errors.Is(err, unix.EBADF):
-
-		return true
-	}
-
-	return false
-}
-
-// Option configures a core.
-type Option interface {
-	apply(*Core)
-}
-
-// optionFunc wraps a func so it satisfies the Option interface.
-type optionFunc func(*Core)
-
-func (f optionFunc) apply(c *Core) {
-	f(c)
-}
-
-// WithInitialFields configures the zap InitialFields.
-func WithInitialFields(fields map[string]interface{}) Option {
-	return optionFunc(func(c *Core) {
-		c.initFields = fields
-	})
-}
-
-// WithWriteSyncer configures the zapcore.WriteSyncer.
-func WithWriteSyncer(ws zapcore.WriteSyncer) Option {
-	return optionFunc(func(c *Core) {
-		c.ws = ws
-	})
-}
-
-func newCore(ws zapcore.WriteSyncer, enab zapcore.LevelEnabler, opts ...Option) *Core {
-	core := &Core{
+func newCore(ws zapcore.WriteSyncer, enab zapcore.LevelEnabler, opts ...Option) *core {
+	core := &core{
 		LevelEnabler: enab,
 		enc:          zapcore.NewJSONEncoder(NewEncoderConfig()),
 		ws:           ws,
@@ -250,4 +117,113 @@ func WrapCore(opts ...Option) zap.Option {
 
 		return zapcore.NewCore(core.enc, core.ws, core.LevelEnabler)
 	})
+}
+
+func (c *core) clone() *core {
+	newCore := &core{
+		fields: make([]zapcore.Field, len(c.fields)),
+		enc:    c.enc.Clone(),
+		ws:     c.ws,
+	}
+	copy(newCore.fields, c.fields)
+
+	return newCore
+}
+
+func addFields(enc zapcore.ObjectEncoder, fields []zapcore.Field) {
+	for i := range fields {
+		fields[i].AddTo(enc)
+	}
+}
+
+// With adds structured context to the Core.
+//
+// With implements zapcore.Core.
+func (c *core) With(fields []zapcore.Field) zapcore.Core {
+	clone := c.clone()
+	addFields(clone.enc, fields)
+
+	return clone
+}
+
+// Check determines whether the supplied Entry should be logged (using the
+// embedded LevelEnabler and possibly some extra logic). If the entry
+// should be logged, the Core adds itself to the CheckedEntry and returns
+// the result.
+//
+// Check implements zapcore.Core.
+func (c *core) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
+	if c.Enabled(ent.Level) {
+		return ce.AddCore(ent, c)
+	}
+
+	return ce
+}
+
+// Write serializes the Entry and any Fields supplied at the log site and
+// writes them to their destination.
+//
+// Write implemenns zapcore.Core.
+func (c *core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
+	for _, field := range c.fields {
+		field.AddTo(c.enc)
+	}
+
+	buf, err := c.enc.EncodeEntry(ent, fields)
+	if err != nil {
+		return fmt.Errorf("could not encode entry: %w", err)
+	}
+
+	_, err = c.ws.Write(buf.Bytes())
+	buf.Free()
+	if err != nil {
+		return fmt.Errorf("could not write buf: %w", err)
+	}
+
+	if ent.Level > zapcore.ErrorLevel {
+		// Since we may be crashing the program, sync the output. Ignore Sync
+		// errors, pending a clean solution to issue #370.
+		c.Sync() //nolint:errcheck
+	}
+
+	return nil
+}
+
+// Sync flushes buffered logs if any.
+//
+// Sync implemenns zapcore.Core.
+func (c *core) Sync() error {
+	if err := c.ws.Sync(); err != nil {
+		if !knownSyncError(err) {
+			return fmt.Errorf("faild to sync logger: %w", err)
+		}
+	}
+
+	return nil
+}
+
+var knownSyncErrors = []error{
+	// sync /dev/stdout: invalid argument
+	unix.EINVAL,
+	// sync /dev/stdout: not supported
+	unix.ENOTSUP,
+	// sync /dev/stdout: inappropriate ioctl for device
+	unix.ENOTTY,
+	// sync /dev/stdout: bad file descriptor
+	unix.EBADF,
+}
+
+// knownSyncError returns true if the given error is one of the known
+// non-actionable errors returned by Sync on Linux and macOS.
+//
+// This code was borrowed from:
+// - https://github.com/open-telemetry/opentelemetry-collector/blob/v0.74.0/exporter/loggingexporter/known_sync_error.go#L25-L46.
+func knownSyncError(err error) bool {
+	for _, syncError := range knownSyncErrors {
+		if errors.Is(err, syncError) {
+			return true
+		}
+	}
+
+	return false
 }
