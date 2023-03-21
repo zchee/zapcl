@@ -204,6 +204,8 @@ func TestHTTPRequestField(t *testing.T) {
 }
 
 func TestHTTPPayload_MarshalLogObject(t *testing.T) {
+	t.Parallel()
+
 	req := httptest.NewRequest("POST", "/", strings.NewReader("12345"))
 	req.Header.Set("User-Agent", "test-user-agent")
 	req.Header.Set("Referer", "test-referer")
@@ -222,8 +224,8 @@ func TestHTTPPayload_MarshalLogObject(t *testing.T) {
 		t.Fatalf("got %s but want %s", gotMethod, want)
 	}
 
-	if gotRequestUrl, want := enc.Fields["requestUrl"], "/"; gotRequestUrl != want {
-		t.Fatalf("got %s but want %s", gotRequestUrl, want)
+	if gotRequestURL, want := enc.Fields["requestUrl"], "/"; gotRequestURL != want {
+		t.Fatalf("got %s but want %s", gotRequestURL, want)
 	}
 
 	if gotRequestSize, want := enc.Fields["requestSize"], int64(5); gotRequestSize != want {
@@ -238,12 +240,12 @@ func TestHTTPPayload_MarshalLogObject(t *testing.T) {
 		t.Fatalf("got %s but want %s", gotUserAgent, want)
 	}
 
-	if gotRemoteIp, want := enc.Fields["remoteIp"], "192.0.2.1:1234"; gotRemoteIp != want {
-		t.Fatalf("got %s but want %s", gotRemoteIp, want)
+	if gotRemoteIP, want := enc.Fields["remoteIp"], "192.0.2.1:1234"; gotRemoteIP != want {
+		t.Fatalf("got %s but want %s", gotRemoteIP, want)
 	}
 
-	if gotServerIp, want := enc.Fields["serverIp"], ""; gotServerIp != want {
-		t.Fatalf("got %s but want %s", gotServerIp, want)
+	if gotServerID, want := enc.Fields["serverIp"], ""; gotServerID != want {
+		t.Fatalf("got %s but want %s", gotServerID, want)
 	}
 
 	if gotReferer, want := enc.Fields["referer"], "test-referer"; gotReferer != want {

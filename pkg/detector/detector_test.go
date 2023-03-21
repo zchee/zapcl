@@ -8,6 +8,8 @@ import (
 )
 
 func TestCloudPlatformAppEngineStandard(t *testing.T) {
+	t.Parallel()
+
 	d := NewDetector(&fakeResourceGetter{
 		envVars: map[string]string{
 			EnvAppEngineFlexService: "foo",
@@ -22,6 +24,8 @@ func TestCloudPlatformAppEngineStandard(t *testing.T) {
 }
 
 func TestCloudPlatformAppEngineFlex(t *testing.T) {
+	t.Parallel()
+
 	d := NewDetector(&fakeResourceGetter{
 		envVars: map[string]string{
 			EnvAppEngineFlexService:  "foo",
@@ -37,6 +41,8 @@ func TestCloudPlatformAppEngineFlex(t *testing.T) {
 }
 
 func TestCloudPlatformCloudRun(t *testing.T) {
+	t.Parallel()
+
 	d := NewDetector(&fakeResourceGetter{
 		envVars: map[string]string{
 			EnvCloudRunService:  "foo",
@@ -52,6 +58,8 @@ func TestCloudPlatformCloudRun(t *testing.T) {
 }
 
 func TestCloudPlatformCloudRunJobs(t *testing.T) {
+	t.Parallel()
+
 	d := NewDetector(&fakeResourceGetter{
 		envVars: map[string]string{
 			EnvCloudRunJobsService:  "foo",
@@ -66,6 +74,8 @@ func TestCloudPlatformCloudRunJobs(t *testing.T) {
 }
 
 func TestCloudPlatformCloudFunctions(t *testing.T) {
+	t.Parallel()
+
 	d := NewDetector(&fakeResourceGetter{
 		envVars: map[string]string{
 			EnvCloudFunctionsTarget:        "foo",
