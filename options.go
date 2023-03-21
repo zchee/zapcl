@@ -20,7 +20,7 @@ func (f optionFunc) apply(c *core) {
 }
 
 // WithInitialFields configures the zap InitialFields.
-func WithInitialFields(fields map[string]interface{}) Option {
+func WithInitialFields(fields map[string]any) Option {
 	return optionFunc(func(c *core) {
 		c.initFields = fields
 	})

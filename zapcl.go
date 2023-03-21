@@ -7,7 +7,6 @@ package zapcl
 import (
 	"errors"
 	"fmt"
-	"io"
 	"sort"
 
 	"go.uber.org/zap"
@@ -17,6 +16,15 @@ import (
 
 	"github.com/zchee/zapcl/internal/json"
 	"github.com/zchee/zapcl/pkg/monitoredresource"
+)
+
+const (
+	timeKey       = "time" // https://cloud.google.com/logging/docs/agent/logging/configuration#timestamp-processing
+	levelKey      = "severity"
+	nameKey       = "logger"
+	callerKey     = "caller"
+	messageKey    = "message"
+	stacktraceKey = "stacktrace"
 )
 
 var levelToSeverity = map[zapcore.Level]logtypepb.LogSeverity{
@@ -29,15 +37,19 @@ var levelToSeverity = map[zapcore.Level]logtypepb.LogSeverity{
 	zapcore.FatalLevel:  logtypepb.LogSeverity_EMERGENCY,
 }
 
+func levelEncoder(lvl zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
+	enc.AppendString(levelToSeverity[lvl].Enum().String())
+}
+
 // NewEncoderConfig returns the logging configuration.
 func NewEncoderConfig() zapcore.EncoderConfig {
 	return zapcore.EncoderConfig{
-		TimeKey:             "time", // https://cloud.google.com/logging/docs/agent/logging/configuration#timestamp-processing
-		LevelKey:            "severity",
-		NameKey:             "logger",
-		CallerKey:           "caller",
-		MessageKey:          "message",
-		StacktraceKey:       "stacktrace",
+		TimeKey:             timeKey,
+		LevelKey:            levelKey,
+		NameKey:             nameKey,
+		CallerKey:           callerKey,
+		MessageKey:          messageKey,
+		StacktraceKey:       stacktraceKey,
 		LineEnding:          zapcore.DefaultLineEnding,
 		EncodeLevel:         levelEncoder,
 		EncodeTime:          zapcore.RFC3339NanoTimeEncoder,
@@ -47,15 +59,15 @@ func NewEncoderConfig() zapcore.EncoderConfig {
 	}
 }
 
-func levelEncoder(lvl zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString(levelToSeverity[lvl].Enum().String())
-}
+type nopWriteSyncer struct{}
 
-type nopWriteSyncer struct {
-	io.Writer
-}
+// Write implements zapcore.WriteSyncer.
+func (nopWriteSyncer) Write([]byte) (int, error) { return 0, nil }
 
+// Sync implements zapcore.WriteSyncer.
 func (nopWriteSyncer) Sync() error { return nil }
+
+var _ zapcore.WriteSyncer = nopWriteSyncer{}
 
 // core represents a zapcor.core that is Cloud Logging integration for Zap logger.
 type core struct {
@@ -63,16 +75,18 @@ type core struct {
 
 	enc        zapcore.Encoder
 	ws         zapcore.WriteSyncer
-	initFields map[string]interface{}
+	initFields map[string]any
 	fields     []zapcore.Field
 }
 
 var _ zapcore.Core = (*core)(nil)
 
 func newCore(ws zapcore.WriteSyncer, enab zapcore.LevelEnabler, opts ...Option) *core {
+	encoderConfig := NewEncoderConfig()
+
 	core := &core{
 		LevelEnabler: enab,
-		enc:          zapcore.NewJSONEncoder(NewEncoderConfig()),
+		enc:          zapcore.NewJSONEncoder(encoderConfig),
 		ws:           ws,
 	}
 	for _, opt := range opts {
@@ -119,51 +133,10 @@ func WrapCore(opts ...Option) zap.Option {
 	})
 }
 
-func (c *core) clone() *core {
-	newCore := &core{
-		fields: make([]zapcore.Field, len(c.fields)),
-		enc:    c.enc.Clone(),
-		ws:     c.ws,
-	}
-	copy(newCore.fields, c.fields)
-
-	return newCore
-}
-
-func addFields(enc zapcore.ObjectEncoder, fields []zapcore.Field) {
-	for i := range fields {
-		fields[i].AddTo(enc)
-	}
-}
-
-// With adds structured context to the Core.
-//
-// With implements zapcore.Core.
-func (c *core) With(fields []zapcore.Field) zapcore.Core {
-	clone := c.clone()
-	addFields(clone.enc, fields)
-
-	return clone
-}
-
-// Check determines whether the supplied Entry should be logged (using the
-// embedded LevelEnabler and possibly some extra logic). If the entry
-// should be logged, the Core adds itself to the CheckedEntry and returns
-// the result.
-//
-// Check implements zapcore.Core.
-func (c *core) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
-	if c.Enabled(ent.Level) {
-		return ce.AddCore(ent, c)
-	}
-
-	return ce
-}
-
 // Write serializes the Entry and any Fields supplied at the log site and
 // writes them to their destination.
 //
-// Write implemenns zapcore.Core.
+// Write implements zapcore.Core.
 func (c *core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 	for _, field := range c.fields {
 		field.AddTo(c.enc)
@@ -189,13 +162,55 @@ func (c *core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 	return nil
 }
 
+// Check determines whether the supplied Entry should be logged (using the
+// embedded LevelEnabler and possibly some extra logic). If the entry
+// should be logged, the Core adds itself to the CheckedEntry and returns
+// the result.
+//
+// Check implements zapcore.Core.
+func (c *core) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
+	if c.Enabled(ent.Level) {
+		return ce.AddCore(ent, c)
+	}
+
+	return ce
+}
+
+func addFields(enc zapcore.ObjectEncoder, fields []zapcore.Field) {
+	for i := range fields {
+		fields[i].AddTo(enc)
+	}
+}
+
+func (c *core) clone() *core {
+	newCore := &core{
+		LevelEnabler: c.LevelEnabler,
+		fields:       make([]zapcore.Field, len(c.fields)),
+		enc:          c.enc.Clone(),
+		ws:           c.ws,
+	}
+	copy(newCore.fields, c.fields)
+
+	return newCore
+}
+
+// With adds structured context to the Core.
+//
+// With implements zapcore.Core.
+func (c *core) With(fields []zapcore.Field) zapcore.Core {
+	clone := c.clone()
+	addFields(clone.enc, fields)
+
+	return clone
+}
+
 // Sync flushes buffered logs if any.
 //
-// Sync implemenns zapcore.Core.
+// Sync implements zapcore.Core.
 func (c *core) Sync() error {
 	if err := c.ws.Sync(); err != nil {
 		if !knownSyncError(err) {
-			return fmt.Errorf("faild to sync logger: %w", err)
+			return fmt.Errorf("sync logger: %w", err)
 		}
 	}
 
@@ -216,8 +231,7 @@ var knownSyncErrors = []error{
 // knownSyncError returns true if the given error is one of the known
 // non-actionable errors returned by Sync on Linux and macOS.
 //
-// This code was borrowed from:
-// - https://github.com/open-telemetry/opentelemetry-collector/blob/v0.74.0/exporter/loggingexporter/known_sync_error.go#L25-L46.
+// This code was borrowed from https://github.com/open-telemetry/opentelemetry-collector/blob/v0.74.0/exporter/loggingexporter/known_sync_error.go#L25-L46.
 func knownSyncError(err error) bool {
 	for _, syncError := range knownSyncErrors {
 		if errors.Is(err, syncError) {
