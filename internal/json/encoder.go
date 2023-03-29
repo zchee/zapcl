@@ -1,22 +1,21 @@
 // Copyright 2023 The zapcl Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
-//go:build !go1.21 && amd64
-// +build !go1.21,amd64
+//go:build arm64 || (go1.21 && amd64)
+// +build arm64 go1.21,amd64
 
 package json
 
 import (
 	"io"
 
-	"github.com/bytedance/sonic"
+	gojson "github.com/goccy/go-json"
 	"go.uber.org/zap/zapcore"
 )
 
-// NewEncoder returns the new bytedance/sonic/encoder.StreamEncoder.
+// NewEncoder returns the github.com/goccy/go-json NewEncoder.
 func NewEncoder(w io.Writer) zapcore.ReflectedEncoder {
-	enc := sonic.ConfigFastest.NewEncoder(w)
+	enc := gojson.NewEncoder(w)
 	enc.SetEscapeHTML(false)
-
 	return enc
 }
