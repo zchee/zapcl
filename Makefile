@@ -29,6 +29,7 @@ GO_TEST_FUNC ?= .
 GO_COVERAGE_OUT ?= coverage.out
 GO_BENCH_FLAGS ?= -benchmem
 GO_BENCH_FUNC ?= .
+GO_LINT_PACKAGE ?= ./...
 GO_LINT_FLAGS ?=
 
 TOOLS_DIR := ${CURDIR}/tools
@@ -77,7 +78,7 @@ lint: lint/golangci-lint  ## Run all linters.
 .PHONY: lint/golangci-lint
 lint/golangci-lint: tools/bin/golangci-lint .golangci.yaml  ## Run golangci-lint.
 	$(call target)
-	@${TOOLS_BIN}/golangci-lint -j ${JOBS} run $(strip ${GO_LINT_FLAGS}) ./...
+	@${TOOLS_BIN}/golangci-lint -j ${JOBS} run $(strip ${GO_LINT_FLAGS}) ${GO_LINT_PACKAGE}
 
 ##@ tools
 
