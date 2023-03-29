@@ -6,9 +6,9 @@ package zapcl
 import (
 	"testing"
 
+	"cloud.google.com/go/logging/apiv2/loggingpb"
 	"github.com/google/go-cmp/cmp"
 	"go.uber.org/zap"
-	logpb "google.golang.org/genproto/googleapis/logging/v2"
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
@@ -16,7 +16,7 @@ func TestOperation(t *testing.T) {
 	t.Parallel()
 
 	op := &operation{
-		LogEntryOperation: &logpb.LogEntryOperation{
+		LogEntryOperation: &loggingpb.LogEntryOperation{
 			Id:       "id",
 			Producer: "producer",
 			First:    true,
@@ -36,7 +36,7 @@ func TestOperationStart(t *testing.T) {
 	t.Parallel()
 
 	op := &operation{
-		LogEntryOperation: &logpb.LogEntryOperation{
+		LogEntryOperation: &loggingpb.LogEntryOperation{
 			Id:       "id",
 			Producer: "producer",
 			First:    true,
@@ -56,7 +56,7 @@ func TestOperationCont(t *testing.T) {
 	t.Parallel()
 
 	op := &operation{
-		LogEntryOperation: &logpb.LogEntryOperation{
+		LogEntryOperation: &loggingpb.LogEntryOperation{
 			Id:       "id",
 			Producer: "producer",
 			First:    false,
@@ -76,7 +76,7 @@ func TestOperationEnd(t *testing.T) {
 	t.Parallel()
 
 	op := &operation{
-		LogEntryOperation: &logpb.LogEntryOperation{
+		LogEntryOperation: &loggingpb.LogEntryOperation{
 			Id:       "id",
 			Producer: "producer",
 			First:    false,

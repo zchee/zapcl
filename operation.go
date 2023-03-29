@@ -4,9 +4,9 @@
 package zapcl
 
 import (
+	"cloud.google.com/go/logging/apiv2/loggingpb"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	logpb "google.golang.org/genproto/googleapis/logging/v2"
 )
 
 const (
@@ -20,7 +20,7 @@ const (
 
 // operation is the payload of Cloud Logging operation field.
 type operation struct {
-	*logpb.LogEntryOperation
+	*loggingpb.LogEntryOperation
 }
 
 var _ zapcore.ObjectMarshaler = (*operation)(nil)
@@ -40,7 +40,7 @@ func (op operation) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 // operation: https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#LogEntryOperation
 func Operation(id, producer string, first, last bool) zapcore.Field {
 	op := &operation{
-		LogEntryOperation: &logpb.LogEntryOperation{
+		LogEntryOperation: &loggingpb.LogEntryOperation{
 			Id:       id,
 			Producer: producer,
 			First:    first,

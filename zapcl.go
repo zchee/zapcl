@@ -32,20 +32,18 @@ var levelToSeverity = map[zapcore.Level]logtypepb.LogSeverity{
 // NewEncoderConfig returns the logging configuration.
 func NewEncoderConfig() zapcore.EncoderConfig {
 	return zapcore.EncoderConfig{
-		TimeKey:        "time", // https://cloud.google.com/logging/docs/agent/logging/configuration#timestamp-processing
-		LevelKey:       "severity",
-		NameKey:        "logger",
-		CallerKey:      "caller",
-		MessageKey:     "message",
-		StacktraceKey:  "stacktrace",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    levelEncoder,
-		EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
-		NewReflectedEncoder: func(w io.Writer) zapcore.ReflectedEncoder {
-			return json.NewEncoder(w)
-		},
+		TimeKey:             "time", // https://cloud.google.com/logging/docs/agent/logging/configuration#timestamp-processing
+		LevelKey:            "severity",
+		NameKey:             "logger",
+		CallerKey:           "caller",
+		MessageKey:          "message",
+		StacktraceKey:       "stacktrace",
+		LineEnding:          zapcore.DefaultLineEnding,
+		EncodeLevel:         levelEncoder,
+		EncodeTime:          zapcore.RFC3339NanoTimeEncoder,
+		EncodeDuration:      zapcore.SecondsDurationEncoder,
+		EncodeCaller:        zapcore.ShortCallerEncoder,
+		NewReflectedEncoder: json.NewEncoder,
 	}
 }
 
@@ -104,9 +102,9 @@ func (c *Core) With(fields []zapcore.Field) zapcore.Core {
 // the result.
 //
 // Check implements zapcore.Core.Check.
-func (c *Core) Check(entry zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
-	if c.Enabled(entry.Level) {
-		return ce.AddCore(entry, c)
+func (c *Core) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
+	if c.Enabled(ent.Level) {
+		return ce.AddCore(ent, c)
 	}
 
 	return ce
@@ -135,7 +133,7 @@ func (c *Core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 	if ent.Level > zapcore.ErrorLevel {
 		// Since we may be crashing the program, sync the output. Ignore Sync
 		// errors, pending a clean solution to issue #370.
-		c.Sync()
+		c.Sync() //nolint:errcheck
 	}
 
 	return nil
