@@ -44,9 +44,7 @@ func NewEncoderConfig() zapcore.EncoderConfig {
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 		NewReflectedEncoder: func(w io.Writer) zapcore.ReflectedEncoder {
-			enc := json.NewEncoder(w)
-			enc.SetEscapeHTML(false)
-			return enc
+			return json.NewEncoder(w)
 		},
 	}
 }
