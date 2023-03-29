@@ -63,8 +63,8 @@ type Core struct {
 
 	enc        zapcore.Encoder
 	ws         zapcore.WriteSyncer
-	fields     []zapcore.Field
 	initFields map[string]interface{}
+	fields     []zapcore.Field
 }
 
 var _ zapcore.Core = (*Core)(nil)
