@@ -36,6 +36,7 @@ coverage:
 
 ignore:
   - "caller.go"
+  - "internal/json"
 
 comment:
   layout: "newheader, diff, flags, files"
