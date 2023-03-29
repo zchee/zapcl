@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"cloud.google.com/go/logging/apiv2/loggingpb"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	logpb "google.golang.org/genproto/googleapis/logging/v2"
 )
 
 const (
@@ -20,7 +20,7 @@ const (
 // reportLocation is the source code location information associated with the log entry
 // for the purpose of reporting an error, if any.
 type reportLocation struct {
-	*logpb.LogEntrySourceLocation
+	*loggingpb.LogEntrySourceLocation
 }
 
 // MarshalLogObject implements zapcore.ObjectMarshaller.MarshalLogObject.
@@ -53,7 +53,7 @@ func newReportContext(pc uintptr, file string, line int, ok bool) *reportContext
 	}
 	ctx := &reportContext{
 		ReportLocation: &reportLocation{
-			LogEntrySourceLocation: &logpb.LogEntrySourceLocation{
+			LogEntrySourceLocation: &loggingpb.LogEntrySourceLocation{
 				File:     file,
 				Line:     int64(line),
 				Function: function,
