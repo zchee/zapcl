@@ -27,7 +27,7 @@ type sourceLocation struct {
 }
 
 // MarshalLogObject implements zapcore.ObjectMarshaller.MarshalLogObject.
-func (l sourceLocation) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+func (l *sourceLocation) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("file", l.GetFile())
 	enc.AddInt64("line", l.GetLine())
 	enc.AddString("function", l.GetFunction())
