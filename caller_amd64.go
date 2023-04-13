@@ -1,7 +1,7 @@
 // Copyright 2022 The zapcl Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
-//go:build go1.13
+//go:build go1.13 && amd64
 
 package zapcl
 
