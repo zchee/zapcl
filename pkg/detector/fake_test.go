@@ -3,7 +3,7 @@
 
 package detector
 
-// fakeResourceGetter mocks internal.ResourceAtttributesGetter interface to retrieve env vars and metadata
+// fakeResourceGetter mocks internal.ResourceAtttributesGetter interface to retrieve env vars and metadata.
 type fakeResourceGetter struct {
 	envVars  map[string]string
 	metaVars map[string]string

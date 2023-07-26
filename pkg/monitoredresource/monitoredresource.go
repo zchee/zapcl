@@ -1516,6 +1516,8 @@ func (r *Resource) Region() string {
 }
 
 // isMetadataActive queries valid response on "/computeMetadata/v1/" URL.
+//
+//nolint:unused
 func (r *Resource) isMetadataActive() bool {
 	data := r.attrs.Metadata("")
 

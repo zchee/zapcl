@@ -12,9 +12,22 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	logtypepb "google.golang.org/genproto/googleapis/logging/type"
 	"google.golang.org/protobuf/testing/protocmp"
 )
+
+func TestHTTP(t *testing.T) {
+	t.Parallel()
+
+	req := &HTTPPayload{}
+	field := HTTP(req)
+
+	if diff := cmp.Diff(field, zap.Object("httpRequest", req)); diff != "" {
+		t.Fatalf("(-want, +got)\n%s\n", diff)
+	}
+}
 
 func TestHTTPRequestField(t *testing.T) {
 	t.Parallel()
@@ -187,5 +200,63 @@ func TestHTTPRequestField(t *testing.T) {
 				t.Fatalf("(-want, +got)\n%s\n", diff)
 			}
 		})
+	}
+}
+
+func TestHTTPPayload_MarshalLogObject(t *testing.T) {
+	t.Parallel()
+
+	req := httptest.NewRequest("POST", "/", strings.NewReader("12345"))
+	req.Header.Set("User-Agent", "test-user-agent")
+	req.Header.Set("Referer", "test-referer")
+	resp := &http.Response{
+		Body:       io.NopCloser(strings.NewReader("6789101112")),
+		StatusCode: 200,
+	}
+	data := NewHTTPRequest(req, resp)
+
+	enc := zapcore.NewMapObjectEncoder()
+	if err := data.MarshalLogObject(enc); err != nil {
+		t.Fatal(err)
+	}
+
+	if gotMethod, want := enc.Fields["requestMethod"], http.MethodPost; gotMethod != want {
+		t.Fatalf("got %s but want %s", gotMethod, want)
+	}
+
+	if gotRequestURL, want := enc.Fields["requestUrl"], "/"; gotRequestURL != want {
+		t.Fatalf("got %s but want %s", gotRequestURL, want)
+	}
+
+	if gotRequestSize, want := enc.Fields["requestSize"], int64(5); gotRequestSize != want {
+		t.Fatalf("got %d but want %d", gotRequestSize, want)
+	}
+
+	if gotResponseSize, want := enc.Fields["responseSize"], int64(10); gotResponseSize != want {
+		t.Fatalf("got %d but want %d", gotResponseSize, want)
+	}
+
+	if gotUserAgent, want := enc.Fields["userAgent"], "test-user-agent"; gotUserAgent != want {
+		t.Fatalf("got %s but want %s", gotUserAgent, want)
+	}
+
+	if gotRemoteIP, want := enc.Fields["remoteIp"], "192.0.2.1:1234"; gotRemoteIP != want {
+		t.Fatalf("got %s but want %s", gotRemoteIP, want)
+	}
+
+	if gotServerID, want := enc.Fields["serverIp"], ""; gotServerID != want {
+		t.Fatalf("got %s but want %s", gotServerID, want)
+	}
+
+	if gotReferer, want := enc.Fields["referer"], "test-referer"; gotReferer != want {
+		t.Fatalf("got %s but want %s", gotReferer, want)
+	}
+
+	if gotProtocol, want := enc.Fields["protocol"], "HTTP/1.1"; gotProtocol != want {
+		t.Fatalf("got %s but want %s", gotProtocol, want)
+	}
+
+	if gotStatus, want := enc.Fields["status"], int32(http.StatusOK); gotStatus != want {
+		t.Fatalf("got %d but want %d", gotStatus, want)
 	}
 }

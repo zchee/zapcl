@@ -34,7 +34,7 @@ const (
 	instanceID          = "test-instance-12345"
 )
 
-// fakeResourceGetter mocks internal.ResourceAtttributesGetter interface to retrieve env vars and metadata
+// fakeResourceGetter mocks internal.ResourceAtttributesGetter interface to retrieve env vars and metadata.
 type fakeResourceGetter struct {
 	envVars  map[string]string
 	metaVars map[string]string
@@ -75,7 +75,7 @@ func (g *fakeResourceGetter) ReadAll(path string) string {
 	return ""
 }
 
-// setupDetectResource resets sync.Once on detectResource and enforces mocked resource attribute getter
+// setupDetectResource resets sync.Once on detectResource and enforces mocked resource attribute getter.
 func setupDetectedResource(envVars, metaVars, fsPaths map[string]string) {
 	ResourceDetector.once = new(sync.Once)
 	fake := &fakeResourceGetter{
@@ -87,6 +87,7 @@ func setupDetectedResource(envVars, metaVars, fsPaths map[string]string) {
 	ResourceDetector.pb = nil
 }
 
+//nolint:paralleltest,govet
 func TestResourceDetection(t *testing.T) {
 	tests := []struct {
 		name     string
