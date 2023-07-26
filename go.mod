@@ -5,7 +5,7 @@ go 1.20
 require (
 	cloud.google.com/go/compute/metadata v0.2.3
 	cloud.google.com/go/logging v1.7.0
-	github.com/bytedance/sonic v1.9.2
+	github.com/bytedance/sonic v1.10.0-rc3
 	github.com/goccy/go-json v0.10.2
 	github.com/google/go-cmp v0.5.9
 	go.uber.org/zap v1.24.0
@@ -17,7 +17,8 @@ require (
 require (
 	cloud.google.com/go/compute v1.18.0 // indirect
 	cloud.google.com/go/longrunning v0.4.1 // indirect
-	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
+	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
